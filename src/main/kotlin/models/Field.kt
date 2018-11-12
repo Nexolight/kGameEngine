@@ -1,3 +1,5 @@
+package models
+
 import java.util.*
 
 
@@ -8,7 +10,7 @@ import java.util.*
 class Field(){
     var width:Int = 50
     var height:Int = 30
-    private val snake:Snake = Snake()
+    private val snake: Snake = Snake()
     private val buffs:Deque<Buff> = LinkedList<Buff>()
     fun Field(){
 

@@ -1,7 +1,12 @@
+package abstract
+
+import models.Field
+import models.HighScore
+
 /**
  * Class that is used to draw on the output device
  */
-class Drawer : Runnable{
+abstract class GenericDrawer : Runnable{
     override fun run() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -9,28 +14,20 @@ class Drawer : Runnable{
     /**
      * Draws an additional informative game value
      */
-    fun gameValue(name:String,value:Float){
-
-    }
+    abstract fun gameValue(name:String,value:Float);
 
     /**
-     * Draws the current Field to the output device
+     * Draws the current models.Field to the output device
      */
-    fun field(field:Field){
-
-    }
+    abstract fun field(field: Field);
 
     /**
      * Draws the highscore
      */
-    fun highScore(highscore:HighScore){
-
-    }
+    abstract fun highScore(highscore: HighScore);
 
     /**
      * Clears the drawing area
      */
-    fun clear(){
-
-    }
+    abstract fun clear();
 }

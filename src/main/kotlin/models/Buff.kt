@@ -1,11 +1,14 @@
 package models
 
 /**
- * Model that represents a models.Buff to
- * be displayed on a models.Field during gameplay
+ * Enum that holds the available buffs
+ * implemented by the Entity
  */
-class Buff(){
-    fun Buff(){
-
-    }
+enum class Buff(){
+    SPEEDUP_M,
+    SPEEDUP_L,
+    SPEEDDOWN_M,
+    SPEEDDOWN_L,
+    METABOLISM_UP,
+    METABOLISM_DOWN
 }

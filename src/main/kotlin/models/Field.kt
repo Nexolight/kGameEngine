@@ -1,7 +1,13 @@
 package models
 
+import abstract.Entity
 import java.util.*
+import javax.swing.border.Border
 
+enum class BorderType(){
+    REPEAT,
+    BLOCK
+}
 
 /**
  * Class that defines the game area including everything
@@ -10,32 +16,21 @@ import java.util.*
 class Field(){
     var width:Int = 50
     var height:Int = 30
-    private val snake: Snake = Snake()
-    private val buffs:Deque<Buff> = LinkedList<Buff>()
-    fun Field(){
+    var borderType = BorderType.REPEAT
+    private val entities:Deque<Entity> = LinkedList<Entity>()
 
+    fun Field(width:Int,height:Int,borderType:BorderType){
+        this.width=width
+        this.height=height
+        this.borderType=borderType
     }
 
     /**
-     * Set the snake back to it's default position
+     * Resets the field to it's original state
      */
-    fun resetSnake(){
-        snake.reset()
+    fun reset(){
+        entities.clear()
     }
 
-    /**
-     * Clear all buffs
-     */
-    fun resetBuffs(){
-        buffs.clear()
-    }
 
-    /**
-     * Reset everything on the field
-     * to it's default position
-     */
-    fun resetAll(){
-        this.resetSnake()
-        this.resetBuffs()
-    }
 }

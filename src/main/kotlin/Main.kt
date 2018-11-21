@@ -1,5 +1,5 @@
 
-import abstract.CompositorType
+import abstracted.CompositorType
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.mainBody
 import io.Args

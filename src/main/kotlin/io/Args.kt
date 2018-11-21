@@ -1,6 +1,6 @@
 package io
 
-import abstract.CompositorType
+import abstracted.CompositorType
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 

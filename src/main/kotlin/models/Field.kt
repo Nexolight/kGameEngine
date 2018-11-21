@@ -1,8 +1,9 @@
 package models
 
-import abstract.Entity
+import abstracted.Entity
+import com.google.common.collect.Sets
 import java.util.*
-import javax.swing.border.Border
+import java.util.concurrent.ConcurrentMap
 
 enum class BorderType(){
     REPEAT,
@@ -13,24 +14,16 @@ enum class BorderType(){
  * Class that defines the game area including everything
  * that is on it
  */
-class Field(){
-    var width:Int = 50
-    var height:Int = 30
+class Field{
+    var width:Double
+    var height:Double
     var borderType = BorderType.REPEAT
-    private val entities:Deque<Entity> = LinkedList<Entity>()
+    val entities:Set<Entity> = Sets.newConcurrentHashSet()
 
-    fun Field(width:Int,height:Int,borderType:BorderType){
-        this.width=width
-        this.height=height
+    constructor(width:Int = 1000,height:Int = 1000,borderType:BorderType){
+        this.width=width*BaseUnits.ONE
+        this.height=height*BaseUnits.ONE
         this.borderType=borderType
     }
-
-    /**
-     * Resets the field to it's original state
-     */
-    fun reset(){
-        entities.clear()
-    }
-
 
 }

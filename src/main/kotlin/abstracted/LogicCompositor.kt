@@ -8,6 +8,8 @@ import models.NotificationType
 import mu.KLogger
 import mu.KotlinLogging
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.write
 
@@ -15,8 +17,8 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     lateinit var log: KLogger
     private var kill = false
     private val ah:ActionHandler = ah
-    private val uicLock = ReentrantReadWriteLock()
-    private val uics:Deque<UICompositor> = LinkedList<UICompositor>()
+    private val uics:ConcurrentLinkedDeque<UICompositor> = ConcurrentLinkedDeque<UICompositor>()
+    private val pendingUics:ConcurrentLinkedQueue<UICompositor> = ConcurrentLinkedQueue<UICompositor>()
     abstract var field:Field
 
     override fun run(){
@@ -24,17 +26,20 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
         log.info { "LogicCompositor started!" }
         ah.subscribeNotification(Notification(this,NotificationType.SIGNAL))
         ah.subscribeNotification(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE))
-        requestStart()
         while(!kill){
+            while(pendingUics.isNotEmpty()){//A consumer registered
+                uics.add(pendingUics.poll())
+            }
+            if(uics.isEmpty()){//No consumers available
+                Thread.sleep(16)
+                continue
+            }
             requestAction()
-            uicLock.write {
-                for(uic in uics){
-                    if(uic.isAlive){
-                        //uic.onLCReady()//send work
-                        uic.field(field)
-                    }
-
+            for(uic in uics){
+                if(uic.isAlive){
+                    uic.onLCReady(field)
                 }
+
             }
             Thread.sleep(16)
         }
@@ -47,12 +52,6 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
      */
     abstract fun requestAction()
 
-    /**
-     * Calls the individual game logic to perform the
-     * first action
-     */
-    abstract fun requestStart()
-
     override fun onNotify(n: Notification) {
 
         /**
@@ -60,15 +59,13 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
          * if they notify us
          */
         if(n.type == NotificationType.UI_COMPOSITOR_AVAILABLE && n.uic != null){
-            uicLock.write {
-                if(n.uic in uics){
-                    log.warn { "UI compositor already noticed" }
-                    return
-                }
-                log.info { "New UICompositor noticed" }
-                uics.add(n.uic)
+            if(n.uic in uics){
+                log.warn { "UI compositor already noticed" }
                 return
             }
+            log.info { "New UICompositor noticed" }
+            pendingUics.add(n.uic)
+            return
         }
         if(n.type == NotificationType.SIGNAL && n.n == 2){
             log.info { "Killing LogicCompositor!" }

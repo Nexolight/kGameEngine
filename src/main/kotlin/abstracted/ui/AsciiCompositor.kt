@@ -4,22 +4,24 @@ import abstracted.Entity
 import abstracted.UICompositor
 import flow.ActionHandler
 import io.KbdConsole
-import models.BaseUnits
+import jline.console.ConsoleReader
 import models.Field
 import models.HighScore
-import models.SimpleRect
+import models.SimpleQube
 import mu.KotlinLogging
 
 /**
- * Class that is used to draw on the output device
+ * 2 Dimensional renderer. Can't be used with 3 Dimensional
+ * Implementations
  */
 class AsciiCompositor(ah:ActionHandler,ccols:Int = 50,crows:Int = 50) : UICompositor(ah){
     private val ccols:Int = ccols
     private val crows:Int = crows
+    private val cr:ConsoleReader = ConsoleReader()
 
     companion object {
         val ESC:Char = 0x1B.toChar()
-        val WALL:Char = '#'
+        val BLOCK:Char = '#'
     }
     private val log = KotlinLogging.logger(this::class.java.name)
 
@@ -37,16 +39,14 @@ class AsciiCompositor(ah:ActionHandler,ccols:Int = 50,crows:Int = 50) : UICompos
     }
 
     override fun field(field: Field) {
-        var posX = 0
-        var posY = 0
-        var unitX = Math.floorDiv(field.width.toInt(),ccols)
-        var unitY = Math.floorDiv(field.height.toInt(),crows)
-
+        cr.clearScreen()
+        cr.flush()
 
         for(e:Entity in field.entities){
-            for(block:SimpleRect in e.occupiesSimple()){
-                //...
-                System.out.print(String.format(WALL.plus("%c[%d;%df"),ESC,posX,posY))
+            for(block:SimpleQube in e.occupiesSimple()){
+                //-> wrong unit, to many rows & cols
+                System.out.print(String.format("%c[%d;%df",ESC,block.pos.x.toInt(),block.pos.y.toInt()))
+                System.out.print(BLOCK)
             }
         }
     }

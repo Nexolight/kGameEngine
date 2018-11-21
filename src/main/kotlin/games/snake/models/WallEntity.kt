@@ -3,7 +3,7 @@ package games.snake.models
 import abstracted.entity.StaticEntity
 import models.BaseUnits
 import models.Position
-import models.SimpleRect
+import models.SimpleQube
 
 /**
  * Represents a wall
@@ -11,19 +11,19 @@ import models.SimpleRect
 class WallEntity: StaticEntity{
     var width:Double
     var height:Double
-    var occupies:MutableList<SimpleRect> = ArrayList<SimpleRect>()
+    var occupies:MutableList<SimpleQube> = ArrayList<SimpleQube>()
 
-    constructor(wpos:Position, width:Int=1, height:Int=1) : super(wpos) {
-        this.width=width*BaseUnits.ONE
-        this.height=height*BaseUnits.ONE
+    constructor(wpos:Position, iwidth:Int=1, iheight:Int=1) : super(wpos) {
+        this.width=iwidth*BaseUnits.ONE
+        this.height=iheight*BaseUnits.ONE
 
-        for(x in 0 until width){
-            occupies.add(SimpleRect(Position(x,0,0)))
-            occupies.add(SimpleRect(Position(x,height,0)))
+        for(x in 0 until iwidth){
+            occupies.add(SimpleQube(Position(x,0,0)))
+            occupies.add(SimpleQube(Position(x,iheight,0)))
         }
-        for(y in 1 until height-1){
-            occupies.add(SimpleRect(Position(0,y,0)))
-            occupies.add(SimpleRect(Position(width,y,0)))
+        for(y in 1 until iheight-1){
+            occupies.add(SimpleQube(Position(0,y,0)))
+            occupies.add(SimpleQube(Position(iwidth,y,0)))
         }
     }
 
@@ -42,7 +42,7 @@ class WallEntity: StaticEntity{
         return false
     }
 
-    override fun occupiesSimple(): List<SimpleRect> {
+    override fun occupiesSimple(): List<SimpleQube> {
         return occupies
     }
 }

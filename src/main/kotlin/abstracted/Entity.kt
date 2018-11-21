@@ -4,7 +4,7 @@ import abstracted.logic.DummyLogic
 import abstracted.logic.EntityLogic
 import models.Buff
 import models.Position
-import models.SimpleRect
+import models.SimpleQube
 import java.util.*
 
 /**
@@ -24,5 +24,5 @@ abstract class Entity(position:Position = Position(), logic:EntityLogic = DummyL
      * Returns a simplified list with blocks
      * that the entity occupies
      */
-    abstract fun occupiesSimple():List<SimpleRect>
+    abstract fun occupiesSimple():List<SimpleQube>
 }

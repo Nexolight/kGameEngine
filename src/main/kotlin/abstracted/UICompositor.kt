@@ -8,6 +8,7 @@ import models.Notification
 import models.NotificationType
 import mu.KotlinLogging
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.write
 
@@ -19,12 +20,12 @@ enum class CompositorType{
  * Class that is used to draw on the output device
  */
 abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
-    private val queueLock = ReentrantReadWriteLock()
     private val log = KotlinLogging.logger(this::class.java.name)
     private var kill = false
     protected val ah:ActionHandler = ah
-    protected val rq:Deque<Field> = LinkedList<Field>()
+    protected val rq:ConcurrentLinkedQueue<Field> = ConcurrentLinkedQueue<Field>()
     protected lateinit var lc:LogicCompositor
+
 
     override fun run() {
         log.info { "AsciiCompositor started!" }
@@ -32,18 +33,25 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
         ah.subscribeNotification(Notification(this,NotificationType.NEW_LOGIC_COMPOSITOR_AVAILABLE))
         ah.notify(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE,this))
         while(!kill){
-            if(rq.isNotEmpty()){
-                queueLock.write {
-                    for(frame:Field in rq){
-                        field(frame)
-                    }
+            while(rq.isNotEmpty()){
+                if(rq.size >= 4){
+                    frameSkip(rq.size - (rq.size-1))
                 }
-                rq.clear()
+                field(rq.poll())
             }
-            Thread.sleep(16)
             //TODO: Better sync
         }
         log.info { "UICompositor stopped gracefully!" }
+    }
+
+    /**
+     * Throws away the given delta of frames to catch up
+     */
+    private fun frameSkip(delta:Int){
+        //log.warn { "Throwing away "+delta.toString()+" frames" }
+        for(i in 0 until delta){
+            rq.poll()
+        }
     }
 
     /**
@@ -73,32 +81,32 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
      * whn calculations are done and ready to be
      * visualized
      */
-    fun onLCReady(){
-
+    fun onLCReady(f:Field){
+        rq.add(f)
     }
 
     /**
      * Called when the compositor was asked to shutdown
      */
-    abstract fun onSIGINT()
+    protected abstract fun onSIGINT()
 
     /**
      * Draws an additional informative game value
      */
-    abstract fun gameValue(name:String,value:Float)
+    protected abstract fun gameValue(name:String,value:Float)
 
     /**
      * Draws the current models.Field to the output device
      */
-    abstract fun field(field: Field)
+    protected abstract fun field(field: Field)
 
     /**
      * Draws the highscore
      */
-    abstract fun highScore(highscore: HighScore)
+    protected abstract fun highScore(highscore: HighScore)
 
     /**
      * Clears the drawing area
      */
-    abstract fun clear()
+    protected abstract fun clear()
 }

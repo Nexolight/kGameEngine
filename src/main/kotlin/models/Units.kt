@@ -12,8 +12,9 @@ class SquareUnits{
     }
 }
 
-class SimpleRect(pos:Position){
+class SimpleQube(pos:Position){
     val pos = pos
-    val t:Double = BaseUnits.ONE
-    val r:Double = BaseUnits.ONE
+    val width:Double = BaseUnits.ONE
+    val height:Double = BaseUnits.ONE
+    val depth:Double = BaseUnits.ONE
 }

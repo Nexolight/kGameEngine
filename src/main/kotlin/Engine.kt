@@ -30,6 +30,7 @@ class Engine : NotifyThread(){
         ah.start()
         uic.start()
         lc.start()
+
         Signal.handle(Signal("INT"), object : SignalHandler {
             override fun handle(sig: Signal) {
                 ah.notify(Notification(self,NotificationType.SIGNAL,2))

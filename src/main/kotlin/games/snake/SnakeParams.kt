@@ -2,7 +2,7 @@ package games.snake
 
 class SnakeParams {
     companion object {
-        val mapwidth=1000
-        val mapheight=1000
+        val mapwidth=50
+        val mapheight=30
     }
 }

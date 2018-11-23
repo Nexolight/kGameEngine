@@ -12,9 +12,13 @@ class SquareUnits{
     }
 }
 
-class SimpleQube(pos:Position){
+class SimpleQube(pos:Position,widthBaseUnits:Int=0,heightBaseUnits:Int=0,depthBaseUnits:Int=0){
     val pos = pos
-    val width:Double = BaseUnits.ONE
-    val height:Double = BaseUnits.ONE
-    val depth:Double = BaseUnits.ONE
+    val width:Double = widthBaseUnits*BaseUnits.ONE
+    val height:Double = heightBaseUnits*BaseUnits.ONE
+    val depth:Double = depthBaseUnits*BaseUnits.ONE
+
+    override fun toString():String{
+        return "Block: width: $width, height: $height, depth: $depth"
+    }
 }

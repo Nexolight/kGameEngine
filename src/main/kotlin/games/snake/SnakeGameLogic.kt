@@ -7,27 +7,31 @@ import models.*
 
 class SnakeGameLogic : LogicCompositor{
 
+    var firstAction:Boolean = true
+
     constructor(ah:ActionHandler):super(ah){
-        genMap()
     }
 
     override var field: Field = Field(SnakeParams.mapwidth,SnakeParams.mapheight, BorderType.BLOCK)
 
     override fun requestAction() {
-        //
+        if(firstAction == true){
+            genMap()
+            firstAction = false
+        }
     }
 
     fun genMap(){
         field.entities.add(
             WallEntity(Position(0,0,0),SnakeParams.mapwidth,1))
         field.entities.add(
-                WallEntity(Position(0,SnakeParams.mapheight,0),SnakeParams.mapwidth,1)
+            WallEntity(Position(0,SnakeParams.mapheight-1,0),SnakeParams.mapwidth,1)
         )
         field.entities.add(
             WallEntity(Position(0,1,0),1,SnakeParams.mapheight-2)
         )
         field.entities.add(
-            WallEntity(Position(SnakeParams.mapwidth,1,0),1,SnakeParams.mapheight-2)
+            WallEntity(Position(SnakeParams.mapwidth-1,1,0),1,SnakeParams.mapheight-2)
         )
     }
 

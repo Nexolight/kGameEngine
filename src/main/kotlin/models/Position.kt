@@ -7,9 +7,9 @@ class Position{
     var x:Double
     var y:Double
     var z:Double
-    constructor(x:Int=0,y:Int=0,z:Int=0){
-        this.x=x*BaseUnits.ONE
-        this.y=y*BaseUnits.ONE
-        this.z=z*BaseUnits.ONE
+    constructor(xBaseUnits:Int=0,yBaseUnits:Int=0,zBaseUnits:Int=0){
+        this.x=xBaseUnits*BaseUnits.ONE
+        this.y=yBaseUnits*BaseUnits.ONE
+        this.z=zBaseUnits*BaseUnits.ONE
     }
 }

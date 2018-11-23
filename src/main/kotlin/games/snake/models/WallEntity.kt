@@ -1,6 +1,7 @@
 package games.snake.models
 
 import abstracted.entity.StaticEntity
+import games.snake.SnakeParams
 import models.BaseUnits
 import models.Position
 import models.SimpleQube
@@ -17,14 +18,7 @@ class WallEntity: StaticEntity{
         this.width=iwidth*BaseUnits.ONE
         this.height=iheight*BaseUnits.ONE
 
-        for(x in 0 until iwidth){
-            occupies.add(SimpleQube(Position(x,0,0)))
-            occupies.add(SimpleQube(Position(x,iheight,0)))
-        }
-        for(y in 1 until iheight-1){
-            occupies.add(SimpleQube(Position(0,y,0)))
-            occupies.add(SimpleQube(Position(iwidth,y,0)))
-        }
+        occupies.add(SimpleQube(super.position,(width/BaseUnits.ONE).toInt(),(height/BaseUnits.ONE).toInt(),0))
     }
 
     override fun blocks(pos: Position):Boolean {

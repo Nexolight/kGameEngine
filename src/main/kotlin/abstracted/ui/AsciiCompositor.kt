@@ -2,6 +2,7 @@ package abstracted.ui
 
 import abstracted.Entity
 import abstracted.UICompositor
+import abstracted.ui.`if`.ASCIISupport
 import flow.ActionHandler
 import io.KbdConsole
 import jline.console.ConsoleReader
@@ -22,7 +23,11 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
     companion object {
         val ESC:Char = 0x1B.toChar()
         val BLOCK:Char = '#'
+        val WINDOW_INFO_Y_OFFSET:Int = 0
+        val WINDOW_INFO_FPS_X_OFFSET:Int = 0
+        val WINDOW_GAME_Y_OFFSET:Int = WINDOW_INFO_Y_OFFSET+2
     }
+
     private val log = KotlinLogging.logger(this::class.java.name)
 
     override fun onRun() {
@@ -38,23 +43,28 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
     override fun gameValue(name: String, value: Float) {
     }
 
-    override fun field(field: Field) {
+    override fun drawField(field: Field) {
 
         //clear the console, it would be a mess otherwise
         cr.clearScreen()
         cr.flush()
 
-        //simplified field width/height
-        val tHeight:Int = (field.height/BaseUnits.ONE).toInt()
-        val tWidth:Int = (field.width/BaseUnits.ONE).toInt()
+        //simplified drawField width/height
+        //val tHeight:Int = (field.height/BaseUnits.ONE).toInt()
+        //val tWidth:Int = (field.width/BaseUnits.ONE).toInt()
 
-        //iterate trough everything on the field
+        //iterate trough everything on the drawField
         for(e:Entity in field.entities){
+
+            if(e !is ASCIISupport){
+                //TODO: Warn about unsupported entities
+                continue
+            }
 
             //Get the blocks that are visible
             for(block:SimpleQube in e.occupiesSimple()){
 
-                //A simplified offset that is the position of the object within the field.
+                //A simplified offset that is the position of the object within the drawField.
                 val offsetX:Int = (block.pos.x/BaseUnits.ONE).toInt()
                 val offsetY:Int = (block.pos.y/BaseUnits.ONE).toInt()
 
@@ -67,12 +77,17 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
                     for(x in 1..bWidth){
                         val y:Int = offsetY+y
                         val x:Int = offsetX+x
-                        System.out.print(String.format("%c[%d;%df",ESC,y+1,x+1))//console cursor position
-                        System.out.print(BLOCK)//ASCII character
+                        System.out.print(String.format("%c[%d;%df",ESC,y+WINDOW_GAME_Y_OFFSET+1,x+1))//console cursor position
+                        System.out.print(e.getOccupyRepresentation(block.pos))//ASCII character
                     }
                 }
             }
         }
+    }
+
+    override fun drawFPS(fps: Long) {
+        System.out.print(String.format("%c[%d;%df",ESC, WINDOW_INFO_Y_OFFSET+1,WINDOW_INFO_FPS_X_OFFSET+1))//console cursor position
+        System.out.print("fps: $fps")
     }
 
     override fun highScore(highscore: HighScore) {

@@ -1,6 +1,7 @@
 package games.snake.models
 
 import abstracted.entity.StaticEntity
+import abstracted.ui.`if`.ASCIISupport
 import games.snake.SnakeParams
 import models.BaseUnits
 import models.Position
@@ -9,7 +10,7 @@ import models.SimpleQube
 /**
  * Represents a wall
  */
-class WallEntity: StaticEntity{
+class WallEntity: StaticEntity, ASCIISupport {
     var width:Double
     var height:Double
     var occupies:MutableList<SimpleQube> = ArrayList<SimpleQube>()
@@ -38,5 +39,9 @@ class WallEntity: StaticEntity{
 
     override fun occupiesSimple(): List<SimpleQube> {
         return occupies
+    }
+
+    override fun getOccupyRepresentation(pos: Position): Char {
+        return '#'
     }
 }

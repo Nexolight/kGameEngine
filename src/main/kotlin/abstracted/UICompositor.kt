@@ -9,8 +9,6 @@ import models.NotificationType
 import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.write
 
 enum class CompositorType{
     ascii,web,qt
@@ -25,19 +23,33 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
     protected val ah:ActionHandler = ah
     protected val rq:ConcurrentLinkedQueue<Field> = ConcurrentLinkedQueue<Field>()
     protected lateinit var lc:LogicCompositor
-
+    private var fpsTimeFrame:Long = 0
+    private var renderedFrames:Long = 0
+    private var fps:Long = 0
 
     override fun run() {
         log.info { "AsciiCompositor started!" }
         ah.subscribeNotification(Notification(this,NotificationType.SIGNAL))
         ah.subscribeNotification(Notification(this,NotificationType.NEW_LOGIC_COMPOSITOR_AVAILABLE))
         ah.notify(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE,this))
+        fpsTimeFrame = System.currentTimeMillis()
         while(!kill){
             while(rq.isNotEmpty()){
                 if(rq.size >= 4){
                     frameSkip(rq.size - (rq.size-1))
                 }
-                field(rq.poll())
+                drawField(rq.poll())
+
+                //Calculate & draw fps if enabled
+                //TODO: add argument
+                ++renderedFrames
+                if(System.currentTimeMillis()-fpsTimeFrame>=1000){
+                    fps = renderedFrames
+                    renderedFrames=0
+                    fpsTimeFrame=System.currentTimeMillis()
+                }
+                drawFPS(fps)
+
             }
             //TODO: Better sync
         }
@@ -98,7 +110,12 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
     /**
      * Draws the current models.Field to the output device
      */
-    protected abstract fun field(field: Field)
+    protected abstract fun drawField(field: Field)
+
+    /**
+     * Draws the current fps rate
+     */
+    protected abstract fun drawFPS(fps:Long)
 
     /**
      * Draws the highscore

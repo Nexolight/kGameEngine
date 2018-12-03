@@ -6,11 +6,6 @@ import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentMap
 
-enum class BorderType(){
-    REPEAT,
-    BLOCK
-}
-
 /**
  * Class that defines the game area including everything
  * that is on it
@@ -18,13 +13,11 @@ enum class BorderType(){
 class Field{
     var width:Double
     var height:Double
-    var borderType = BorderType.REPEAT
     val entities:ConcurrentLinkedDeque<Entity> = ConcurrentLinkedDeque<Entity>()
 
-    constructor(width:Int = 1000,height:Int = 1000,borderType:BorderType){
+    constructor(width:Int = 1000,height:Int = 1000){
         this.width=width*BaseUnits.ONE
         this.height=height*BaseUnits.ONE
-        this.borderType=borderType
     }
 
 }

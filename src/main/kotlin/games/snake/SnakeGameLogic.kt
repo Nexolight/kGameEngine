@@ -2,22 +2,32 @@ package games.snake
 
 import abstracted.LogicCompositor
 import flow.ActionHandler
+import games.snake.models.TextEntity
 import games.snake.models.WallEntity
 import models.*
 
 class SnakeGameLogic : LogicCompositor{
 
     var firstAction:Boolean = true
+    val welcome:TextEntity = TextEntity(Position(5,10,0))
+    override var field: Field = Field(SnakeParams.mapwidth,SnakeParams.mapheight)
+
 
     constructor(ah:ActionHandler):super(ah){
     }
 
-    override var field: Field = Field(SnakeParams.mapwidth,SnakeParams.mapheight, BorderType.BLOCK)
 
     override fun requestAction() {
-        if(firstAction == true){
+        if(firstAction){
             genMap()
-            firstAction = false
+            field.entities.add(welcome)
+            if(super.ticks < 3){
+                welcome.updateText("${SnakeParams.welcomeMsg} ${3-super.ticks}",SnakeParams.mapwidth-4)
+                super.addActionRequestDelay(1000)
+            }else{
+                field.entities.remove(welcome)//TODO:this isn't removed but should be
+                firstAction = false
+            }
         }
     }
 

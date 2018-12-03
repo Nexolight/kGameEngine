@@ -20,6 +20,9 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     private val uics:ConcurrentLinkedDeque<UICompositor> = ConcurrentLinkedDeque<UICompositor>()
     private val pendingUics:ConcurrentLinkedQueue<UICompositor> = ConcurrentLinkedQueue<UICompositor>()
     abstract var field:Field
+    private var delay:Long = 0
+    var ticks:Long = 0
+        private set
 
     override fun run(){
         log = KotlinLogging.logger(this::class.java.name)
@@ -41,7 +44,13 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
                 }
 
             }
-            Thread.sleep(16)
+            ++ticks
+            if(delay > 0){
+                Thread.sleep(delay)
+                delay = 0
+            }else{
+                Thread.sleep(16)
+            }
         }
         log.info { "LogicCompositor stopped gracefully!" }
     }
@@ -49,8 +58,18 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     /**
      * Calls the individual game logic to perform the
      * next action
+     *
+     * This should be non blocking!
      */
     abstract fun requestAction()
+
+    /**
+     * Artificially increase the time until the next tick
+     * starts.
+     */
+    fun addActionRequestDelay(seconds:Int){
+        delay+=seconds
+    }
 
     override fun onNotify(n: Notification) {
 

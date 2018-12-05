@@ -2,6 +2,7 @@ package games.snake
 
 import abstracted.LogicCompositor
 import flow.ActionHandler
+import games.snake.models.Align
 import games.snake.models.TextEntity
 import games.snake.models.WallEntity
 import models.*
@@ -20,9 +21,15 @@ class SnakeGameLogic : LogicCompositor{
     override fun requestAction() {
         if(firstAction){
             genMap()
+            if(super.ticks == 0.toLong()){
+                super.igLogI("Loading game")
+            }
             field.entities.add(welcome)
             if(super.ticks < 3){
-                welcome.updateText("${SnakeParams.welcomeMsg} ${3-super.ticks}",SnakeParams.mapwidth-4)
+                welcome.updateText(
+                        "${SnakeParams.welcomeMsg}\n${3-super.ticks}",
+                        SnakeParams.mapwidth-4,
+                        Align.CENTER)
                 super.addActionRequestDelay(1000)
             }else{
                 field.entities.remove(welcome)//TODO:this isn't removed but should be

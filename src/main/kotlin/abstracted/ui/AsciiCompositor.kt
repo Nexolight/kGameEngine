@@ -11,6 +11,7 @@ import models.Field
 import models.HighScore
 import models.SimpleQube
 import mu.KotlinLogging
+import java.util.*
 import kotlin.math.roundToInt
 
 /**
@@ -20,12 +21,18 @@ import kotlin.math.roundToInt
 class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
     private val cr:ConsoleReader = ConsoleReader()
 
+    //Field is dynamic, update for other offsets
+    private var maxFieldHeight:Int = 0
+    private var maxFieldWidht:Int = 0
+
     companion object {
         val ESC:Char = 0x1B.toChar()
         val BLOCK:Char = '#'
         val WINDOW_INFO_Y_OFFSET:Int = 0
-        val WINDOW_INFO_FPS_X_OFFSET:Int = 0
+        val WINDOW_INFO_FPS_X_OFFSET:Int = 1
         val WINDOW_GAME_Y_OFFSET:Int = WINDOW_INFO_Y_OFFSET+2
+        val WINDOW_LOG_Y_OFFSET:Int = WINDOW_GAME_Y_OFFSET+3//+dynamic size of field
+        val WINDOW_LOG_X_OFFSET:Int = 1
     }
 
     private val log = KotlinLogging.logger(this::class.java.name)
@@ -44,6 +51,9 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
     }
 
     override fun drawField(field: Field) {
+        //update field borders
+        maxFieldWidht=(field.width/BaseUnits.ONE).toInt()
+        maxFieldHeight=(field.height/BaseUnits.ONE).toInt()
 
         //clear the console, it would be a mess otherwise
         cr.clearScreen()
@@ -82,6 +92,20 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
                     }
                 }
             }
+        }
+    }
+
+    override fun drawLog(logWindow: Deque<String>) {
+        var y:Int = WINDOW_LOG_Y_OFFSET+maxFieldHeight
+        System.out.print(String.format("%c[%d;%df",ESC, y,WINDOW_LOG_X_OFFSET+1))//console cursor position
+        System.out.print("[LOGS]")
+        System.out.print(String.format("%c[%d;%df",ESC, y+1,WINDOW_LOG_X_OFFSET+1))//console cursor position
+        System.out.print("-".repeat(maxFieldWidht))
+
+        for(ll in logWindow){
+            System.out.print(String.format("%c[%d;%df",ESC, y+2,WINDOW_LOG_X_OFFSET+1))//console cursor position
+            System.out.print(ll)
+            ++y
         }
     }
 

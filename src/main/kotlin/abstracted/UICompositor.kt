@@ -21,7 +21,8 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
     private val log = KotlinLogging.logger(this::class.java.name)
     private var kill = false
     protected val ah:ActionHandler = ah
-    protected val rq:ConcurrentLinkedQueue<Field> = ConcurrentLinkedQueue<Field>()
+    protected val rqField:ConcurrentLinkedQueue<Field> = ConcurrentLinkedQueue<Field>()
+    protected val rqLog:ConcurrentLinkedQueue<Deque<String>> = ConcurrentLinkedQueue<Deque<String>>()
     protected lateinit var lc:LogicCompositor
     private var fpsTimeFrame:Long = 0
     private var renderedFrames:Long = 0
@@ -34,11 +35,12 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
         ah.notify(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE,this))
         fpsTimeFrame = System.currentTimeMillis()
         while(!kill){
-            while(rq.isNotEmpty()){
-                if(rq.size >= 4){
-                    frameSkip(rq.size - (rq.size-1))
+            while(rqField.isNotEmpty()){
+                if(rqField.size >= 4){
+                    frameSkip(rqField.size - (rqField.size-1))
                 }
-                drawField(rq.poll())
+                drawField(rqField.poll())
+                drawLog(rqLog.poll())
 
                 //Calculate & draw fps if enabled
                 //TODO: add argument
@@ -62,7 +64,7 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
     private fun frameSkip(delta:Int){
         //log.warn { "Throwing away "+delta.toString()+" frames" }
         for(i in 0 until delta){
-            rq.poll()
+            rqField.poll()
         }
     }
 
@@ -90,11 +92,20 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
 
     /**
      * Called by the registered LogicCompositor
-     * whn calculations are done and ready to be
+     * when calculations are done and ready to be
      * visualized
      */
     fun onLCReady(f:Field){
-        rq.add(f)
+        rqField.add(f)
+    }
+
+    /**
+     * Called by the registerd LogicCompositor
+     * when calculations are done and ready to be
+     * visualized
+     */
+    fun onLCReady(logWindow:Deque<String>){
+        rqLog.add(logWindow)
     }
 
     /**
@@ -116,6 +127,11 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
      * Draws the current fps rate
      */
     protected abstract fun drawFPS(fps:Long)
+
+    /**
+     * Draws all the lines in the passed log list
+     */
+    protected abstract fun drawLog(logWindow:Deque<String>)
 
     /**
      * Draws the highscore

@@ -2,9 +2,9 @@ package games.snake
 
 import abstracted.LogicCompositor
 import flow.ActionHandler
-import games.snake.models.Align
-import games.snake.models.TextEntity
-import games.snake.models.WallEntity
+import games.snake.entitylogic.entities.Align
+import games.snake.entitylogic.entities.TextEntity
+import games.snake.entitylogic.entities.WallEntity
 import models.*
 
 class SnakeGameLogic : LogicCompositor{
@@ -13,31 +13,56 @@ class SnakeGameLogic : LogicCompositor{
     val welcome:TextEntity = TextEntity(Position(5,10,0))
     override var field: Field = Field(SnakeParams.mapwidth,SnakeParams.mapheight)
 
-
     constructor(ah:ActionHandler):super(ah){
     }
 
 
     override fun requestAction() {
+        val elements = field.entities.size
+        super.igLogI("frames: ${super.renderTicks}, ARs: ${super.actionRequestTicks} elements: $elements")
+
+        /**
+         * Welcome sequence
+         */
         if(firstAction){
-            genMap()
-            if(super.ticks == 0.toLong()){
+            if(super.actionRequestTicks == 0.toLong()){
                 super.igLogI("Loading game")
+                super.framecap = 100//don't need more
+                genMap()
+                field.entities.add(welcome)
             }
-            field.entities.add(welcome)
-            if(super.ticks < 3){
+            if(super.actionRequestTicks < 5){
                 welcome.updateText(
-                        "${SnakeParams.welcomeMsg}\n${3-super.ticks}",
+                        "${SnakeParams.welcomeMsg}\n${5-super.actionRequestTicks}",
                         SnakeParams.mapwidth-4,
                         Align.CENTER)
-                super.addActionRequestDelay(1000)
             }else{
-                field.entities.remove(welcome)//TODO:this isn't removed but should be
+                field.entities.remove(welcome)
                 firstAction = false
+                super.framecap = 16
             }
         }
+
+        //don't need more here.
+        super.addActionRequestDelay(1000)
     }
 
+    /**
+     * Snake generation
+     */
+    fun genSnake(){
+        /*
+        field.entities.add(
+                SnakeEntity(
+                        Position(0,0,0),
+
+                )
+        )*/
+    }
+
+    /**
+     * Map generation
+     */
     fun genMap(){
         field.entities.add(
             WallEntity(Position(0,0,0),SnakeParams.mapwidth,1))

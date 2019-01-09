@@ -119,7 +119,7 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
     protected abstract fun gameValue(name:String,value:Float)
 
     /**
-     * Draws the current models.Field to the output device
+     * Draws the current entities.Field to the output device
      */
     protected abstract fun drawField(field: Field)
 

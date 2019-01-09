@@ -10,12 +10,11 @@ import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.write
 
 abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     companion object {
         val maxLogLen:Int = 5//TODO: parameter
+        val defaultFrameCap:Long = 16
     }
 
     lateinit var log: KLogger
@@ -25,9 +24,18 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     private val pendingUics:ConcurrentLinkedQueue<UICompositor> = ConcurrentLinkedQueue<UICompositor>()
     abstract var field:Field
     private val iglog:Deque<String> = LinkedList<String>()
-    private var delay:Long = 0
-    var ticks:Long = 0
+    private var renderDelay:Long = 0
+    private var actionRequestDelay:Long = 0
+    var renderTicks:Long = 0
         private set
+    var actionRequestTicks:Long = 0
+        private set
+
+    /**
+     * Controls the time delay between each frame
+     */
+    var framecap:Long = defaultFrameCap//TODO: ingame setting?
+
 
     override fun run(){
         log = KotlinLogging.logger(this::class.java.name)
@@ -39,10 +47,18 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
                 uics.add(pendingUics.poll())
             }
             if(uics.isEmpty()){//No consumers available
-                Thread.sleep(16)
+                Thread.sleep(framecap)
                 continue
             }
-            requestAction()
+
+            if(actionRequestDelay > 0){
+                actionRequestDelay-=framecap
+            }else{
+                actionRequestDelay = 0
+                requestAction()
+                ++actionRequestTicks
+            }
+
             for(uic in uics){
                 if(uic.isAlive){
                     uic.onLCReady(field)
@@ -50,12 +66,12 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
                 }
 
             }
-            ++ticks
-            if(delay > 0){
-                Thread.sleep(delay)
-                delay = 0
-            }else{
-                Thread.sleep(16)
+            ++renderTicks
+            if(renderDelay > 0){
+                Thread.sleep(renderDelay)
+                renderDelay = 0
+            }else{//TODO: this is a framecap - should be a setting
+                Thread.sleep(framecap)
             }
         }
         log.info { "LogicCompositor stopped gracefully!" }
@@ -101,11 +117,19 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     abstract fun requestAction()
 
     /**
-     * Artificially increase the time until the next tick
-     * starts.
+     * Artificially increase the time until the compositor
+     * is requested to draw the next frame
      */
-    fun addActionRequestDelay(seconds:Int){
-        delay+=seconds
+    fun addRenderDelay(ms:Long){
+        renderDelay+=ms
+    }
+
+    /**
+     * Artificially increase the time until the next
+     * Action is requested
+     */
+    fun addActionRequestDelay(ms:Long){
+        actionRequestDelay+=ms
     }
 
     override fun onNotify(n: Notification) {
@@ -126,6 +150,24 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
         if(n.type == NotificationType.SIGNAL && n.n == 2){
             log.info { "Killing LogicCompositor!" }
             kill = true
+            return
+        }
+
+        /**
+         * Whatever you want to use it for, this
+         * can be used to display log messages
+         * inside the running UIComposer (if implemented)
+         */
+        if(n.type == NotificationType.INGAME_LOG_INFO){
+            igLogI(n.str)
+            return
+        }
+        if(n.type == NotificationType.INGAME_LOG_ERROR){
+            igLogE(n.str)
+            return
+        }
+        if(n.type == NotificationType.INGAME_LOG_WARN){
+            igLogW(n.str)
             return
         }
     }

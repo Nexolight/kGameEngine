@@ -1,8 +1,7 @@
-package games.snake.models
+package games.snake.entitylogic.entities
 
 import abstracted.entity.StaticEntity
 import abstracted.ui.`if`.ASCIISupport
-import games.snake.SnakeParams
 import models.BaseUnits
 import models.Position
 import models.SimpleQube

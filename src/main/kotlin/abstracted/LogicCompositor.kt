@@ -10,6 +10,7 @@ import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CopyOnWriteArrayList
 
 abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     companion object {
@@ -23,7 +24,14 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     private val uics:ConcurrentLinkedDeque<UICompositor> = ConcurrentLinkedDeque<UICompositor>()
     private val pendingUics:ConcurrentLinkedQueue<UICompositor> = ConcurrentLinkedQueue<UICompositor>()
     abstract var field:Field
-    private val iglog:Deque<String> = LinkedList<String>()
+
+    /**
+     * Either we deepcopy the list we send to the UIC or
+     * we use a CopyOnWriteArrayList which is expensive
+     * but acceptable for this purpose.
+     */
+    private val iglog:CopyOnWriteArrayList<String> = CopyOnWriteArrayList<String>()
+
     private var renderDelay:Long = 0
     private var actionRequestDelay:Long = 0
     var renderTicks:Long = 0
@@ -83,7 +91,7 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     fun igLog(str:String,prefix:String){
         iglog.add("$prefix$str")
         if(iglog.size > LogicCompositor.maxLogLen){
-            iglog.removeFirst()
+            iglog.removeAt(0)
         }
     }
 
@@ -132,7 +140,20 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
         actionRequestDelay+=ms
     }
 
+    /**
+     * This function is called before the default
+     * notification handling from the LogicCompositor
+     * kicks in.
+     *
+     * Use it in your implementation to catch for example
+     * user inputs by subscribing to the ActionHandler
+     */
+    abstract fun onLCNotify(n: Notification)
+
     override fun onNotify(n: Notification) {
+
+        //Game specific notifications
+        onLCNotify(n)
 
         /**
          * We should multiplex to all registered ui compositors

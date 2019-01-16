@@ -19,6 +19,7 @@ class KbdConsole(ah:ActionHandler):NotifyThread(){
     override fun run() {
         log = KotlinLogging.logger(this::class.java.name)
         log.info { "KbdConsole started!" }
+        ah.subscribeNotification(Notification(this,NotificationType.SIGNAL))
 
         val instream:BufferedReader = BufferedReader(InputStreamReader(System.`in`))
         val reader: ConsoleReader = ConsoleReader()

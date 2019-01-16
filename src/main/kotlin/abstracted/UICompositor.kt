@@ -9,6 +9,7 @@ import models.NotificationType
 import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CopyOnWriteArrayList
 
 enum class CompositorType{
     ascii,web,qt
@@ -21,8 +22,8 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
     private val log = KotlinLogging.logger(this::class.java.name)
     private var kill = false
     protected val ah:ActionHandler = ah
-    protected val rqField:ConcurrentLinkedQueue<Field> = ConcurrentLinkedQueue<Field>()
-    protected val rqLog:ConcurrentLinkedQueue<Deque<String>> = ConcurrentLinkedQueue<Deque<String>>()
+    protected val rqField:Queue<Field> = ConcurrentLinkedQueue<Field>()
+    protected val rqLog:Queue<CopyOnWriteArrayList<String>> = ConcurrentLinkedQueue<CopyOnWriteArrayList<String>>()
     protected lateinit var lc:LogicCompositor
     private var fpsTimeFrame:Long = 0
     private var renderedFrames:Long = 0
@@ -34,13 +35,23 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
         ah.subscribeNotification(Notification(this,NotificationType.NEW_LOGIC_COMPOSITOR_AVAILABLE))
         ah.notify(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE,this))
         fpsTimeFrame = System.currentTimeMillis()
+
+        //Call Compositor specific run method
+        onRun()
+
         while(!kill){
-            while(rqField.isNotEmpty()){
-                if(rqField.size >= 4){
-                    frameSkip(rqField.size - (rqField.size-1))
+            while(rqField.isNotEmpty()) {
+                if (rqField.size >= 4) {
+                    frameSkip(rqField.size - (rqField.size - 1))
                 }
-                drawField(rqField.poll())
-                drawLog(rqLog.poll())
+
+                if (rqField.size > 0) {
+                    drawField(rqField.poll())
+                }
+
+                if (rqLog.size > 0) {
+                    drawLog(rqLog.poll())
+                }
 
                 //Calculate & draw fps if enabled
                 //TODO: add argument
@@ -53,7 +64,7 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
                 drawFPS(fps)
 
             }
-            //TODO: Better sync
+            //TODO: Implement VSYNC
         }
         log.info { "UICompositor stopped gracefully!" }
     }
@@ -104,7 +115,7 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
      * when calculations are done and ready to be
      * visualized
      */
-    fun onLCReady(logWindow:Deque<String>){
+    fun onLCReady(logWindow:CopyOnWriteArrayList<String>){
         rqLog.add(logWindow)
     }
 
@@ -131,7 +142,7 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
     /**
      * Draws all the lines in the passed log list
      */
-    protected abstract fun drawLog(logWindow:Deque<String>)
+    protected abstract fun drawLog(logWindow:CopyOnWriteArrayList<String>)
 
     /**
      * Draws the highscore

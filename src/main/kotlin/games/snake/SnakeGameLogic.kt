@@ -10,10 +10,11 @@ import models.*
 class SnakeGameLogic : LogicCompositor{
 
     var firstAction:Boolean = true
-    val welcome:TextEntity = TextEntity(Position(5,10,0))
+    val welcome:TextEntity = TextEntity(Position(2,10,0))
     override var field: Field = Field(SnakeParams.mapwidth,SnakeParams.mapheight)
 
     constructor(ah:ActionHandler):super(ah){
+        ah.subscribeNotification(Notification(this,NotificationType.USERINPUT))
     }
 
 
@@ -26,8 +27,8 @@ class SnakeGameLogic : LogicCompositor{
          */
         if(firstAction){
             if(super.actionRequestTicks == 0.toLong()){
+                super.framecap = 16
                 super.igLogI("Loading game")
-                super.framecap = 100//don't need more
                 genMap()
                 field.entities.add(welcome)
             }
@@ -39,7 +40,6 @@ class SnakeGameLogic : LogicCompositor{
             }else{
                 field.entities.remove(welcome)
                 firstAction = false
-                super.framecap = 16
             }
         }
 
@@ -75,6 +75,13 @@ class SnakeGameLogic : LogicCompositor{
         field.entities.add(
             WallEntity(Position(SnakeParams.mapwidth-1,1,0),1,SnakeParams.mapheight-2)
         )
+    }
+
+    override fun onLCNotify(n: Notification) {
+        //DEBUG only so far
+        if(n.type == NotificationType.USERINPUT){
+            igLogI("User input: ${n.chr}")
+        }
     }
 
 }

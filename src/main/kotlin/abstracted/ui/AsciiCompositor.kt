@@ -12,6 +12,7 @@ import models.HighScore
 import models.SimpleQube
 import mu.KotlinLogging
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.roundToInt
 
 /**
@@ -95,7 +96,7 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
         }
     }
 
-    override fun drawLog(logWindow: Deque<String>) {
+    override fun drawLog(logWindow: CopyOnWriteArrayList<String>) {
         var y:Int = WINDOW_LOG_Y_OFFSET+maxFieldHeight
         System.out.print(String.format("%c[%d;%df",ESC, y,WINDOW_LOG_X_OFFSET+1))//console cursor position
         System.out.print("[LOGS]")

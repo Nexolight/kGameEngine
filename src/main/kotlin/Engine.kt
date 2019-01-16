@@ -43,9 +43,6 @@ class Engine : NotifyThread(){
             }
         })
 
-        //service.submit(playerLogic)
-        //service.submit(spawnLogic)
-
     }
 
     override fun onNotify(n: Notification) {

@@ -1,5 +1,9 @@
 package abstracted
 
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.Input
+import com.esotericsoftware.kryo.util.Pool
+import com.sun.org.apache.xpath.internal.operations.Bool
 import flow.ActionHandler
 import flow.NotifyThread
 import models.Field
@@ -7,6 +11,7 @@ import models.HighScore
 import models.Notification
 import models.NotificationType
 import mu.KotlinLogging
+import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
@@ -18,54 +23,78 @@ enum class CompositorType{
 /**
  * Class that is used to draw on the output device
  */
-abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
+abstract class UICompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThread(){
     private val log = KotlinLogging.logger(this::class.java.name)
     private var kill = false
     protected val ah:ActionHandler = ah
+    protected val kryoPool:Pool<Kryo> = kryoPool
     protected val rqField:Queue<Field> = ConcurrentLinkedQueue<Field>()
     protected val rqLog:Queue<CopyOnWriteArrayList<String>> = ConcurrentLinkedQueue<CopyOnWriteArrayList<String>>()
-    protected lateinit var lc:LogicCompositor
-    private var fpsTimeFrame:Long = 0
+
+    private lateinit var self:UICompositor
+
     private var renderedFrames:Long = 0
+    private var lastFPSUpdate:Long = 0
+    private var lastDraw:Long = 0
     private var fps:Long = 0
+
+    private var reNotifyUIC:Boolean = false
 
     override fun run() {
         log.info { "AsciiCompositor started!" }
         ah.subscribeNotification(Notification(this,NotificationType.SIGNAL))
         ah.subscribeNotification(Notification(this,NotificationType.NEW_LOGIC_COMPOSITOR_AVAILABLE))
         ah.notify(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE,this))
-        fpsTimeFrame = System.currentTimeMillis()
+        lastDraw = System.currentTimeMillis()
+        lastFPSUpdate = System.currentTimeMillis()
 
         //Call Compositor specific run method
         onRun()
 
-        while(!kill){
-            while(rqField.isNotEmpty()) {
-                if (rqField.size >= 4) {
-                    frameSkip(rqField.size - (rqField.size - 1))
-                }
 
-                if (rqField.size > 0) {
-                    drawField(rqField.poll())
-                }
+        while(!kill || rqField.isNotEmpty()) {
 
-                if (rqLog.size > 0) {
-                    drawLog(rqLog.poll())
-                }
-
-                //Calculate & draw fps if enabled
-                //TODO: add argument
-                ++renderedFrames
-                if(System.currentTimeMillis()-fpsTimeFrame>=1000){
-                    fps = renderedFrames
-                    renderedFrames=0
-                    fpsTimeFrame=System.currentTimeMillis()
-                }
-                drawFPS(fps)
-
+            if(reNotifyUIC){
+                ah.notify(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE,this))
+                reNotifyUIC=false
             }
-            //TODO: Implement VSYNC
+
+            //Framecap
+            val vsyncDelta:Long = 16 - (System.currentTimeMillis() - lastDraw)
+            if(vsyncDelta > 0){
+                Thread.sleep(vsyncDelta)
+            }
+
+            //Frameskip
+            if (rqField.size >= 4) {
+                frameSkip(rqField.size - (rqField.size - 1))
+            }
+
+            if(rqField.size > 0){
+                drawField(rqField.poll())
+            }
+
+
+            if (rqLog.size > 0) {
+                drawLog(rqLog.poll())
+            }
+
+            drawFPS(fps)
+
+            lastDraw = System.currentTimeMillis()
+
+            //Calculate & draw fps if enabled
+            //TODO: add argument
+            ++renderedFrames
+            if(System.currentTimeMillis()-lastFPSUpdate>=1000){
+                fps = renderedFrames
+                renderedFrames=0
+                lastFPSUpdate=System.currentTimeMillis()
+            }
+
         }
+        //TODO: Implement better VSYNC
+        onSIGINT()
         log.info { "UICompositor stopped gracefully!" }
     }
 
@@ -87,14 +116,12 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
 
     override fun onNotify(n: Notification) {
         if(n.type == NotificationType.NEW_LOGIC_COMPOSITOR_AVAILABLE && n.lc != null){
-            lc = n.lc
-            log.info { "New LogicCompositor noticed" }
+            log.info { "New LogicCompositor noticed, sending notification" }
             //Notify the logic compositor that a consumer is available
-            ah.notify(Notification(this, NotificationType.UI_COMPOSITOR_AVAILABLE,this))
+            reNotifyUIC=true
             return
         }
         if(n.type == NotificationType.SIGNAL && n.n == 2){
-            onSIGINT()
             log.info { "Killing UICompositor" }
             kill = true
             return
@@ -106,8 +133,12 @@ abstract class UICompositor(ah:ActionHandler) : NotifyThread(){
      * when calculations are done and ready to be
      * visualized
      */
-    fun onLCReady(f:Field){
-        rqField.add(f)
+    fun onLCReady(serializedField: ByteArray){
+        val kryo:Kryo = kryoPool.obtain()
+        val kryoIn:Input = Input(ByteArrayInputStream(serializedField))
+        rqField.add(kryo.readObject(kryoIn,Field::class.java))
+        kryoIn.close()
+        kryoPool.free(kryo)
     }
 
     /**

@@ -8,30 +8,13 @@ version '1.0-SNAPSHOT'
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC1'
     compile group: 'com.google.guava', name: 'guava', version: '27.0-jre'
     compile group: 'com.xenomachina', name: 'kotlin-argparser', version: '2.0.7'
     compile group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.20'

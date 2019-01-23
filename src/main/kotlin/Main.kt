@@ -15,5 +15,5 @@ fun main(args:Array<String>) = mainBody{
         }
     }
     val engine:Engine = Engine()
-    engine.exec()
+    engine.start()
 }

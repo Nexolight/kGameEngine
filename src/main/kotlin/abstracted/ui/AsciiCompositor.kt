@@ -3,23 +3,25 @@ package abstracted.ui
 import abstracted.Entity
 import abstracted.UICompositor
 import abstracted.ui.`if`.ASCIISupport
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.util.Pool
 import flow.ActionHandler
 import io.KbdConsole
 import jline.console.ConsoleReader
-import models.BaseUnits
-import models.Field
-import models.HighScore
-import models.SimpleQube
+import models.*
 import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.roundToInt
 
 /**
- * 2 Dimensional renderer. Can't be used with 3 Dimensional
- * Implementations
+ * 2 Dimensional renderer.
+ * Only compatible with Entities that implement
+ * ASCIISupport
+ *
+ * TODO: implement rotation
  */
-class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
+class AsciiCompositor(ah:ActionHandler,kryoPool: Pool<Kryo>) : UICompositor(ah,kryoPool){
     private val cr:ConsoleReader = ConsoleReader()
 
     //Field is dynamic, update for other offsets
@@ -45,7 +47,9 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
     }
 
     override fun onSIGINT() {
-        //pass
+        //clear the console, it would be a mess otherwise
+        cr.clearScreen()
+        cr.flush()
     }
 
     override fun gameValue(name: String, value: Float) {
@@ -73,15 +77,15 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
             }
 
             //Get the blocks that are visible
-            for(block:SimpleQube in e.occupiesSimple()){
+            for(block:AdvancedQube in e.occupies()){
 
                 //A simplified offset that is the position of the object within the drawField.
                 val offsetX:Int = (block.pos.x/BaseUnits.ONE).toInt()
                 val offsetY:Int = (block.pos.y/BaseUnits.ONE).toInt()
 
                 //Simplified block sizes.
-                val bWidth:Int = (block.width/BaseUnits.ONE).toInt()
-                val bHeight:Int = (block.height/BaseUnits.ONE).toInt()
+                val bWidth:Int = (block.size.width/BaseUnits.ONE).toInt()
+                val bHeight:Int = (block.size.height/BaseUnits.ONE).toInt()
 
                 //Fill the space that is occupied by the qube
                 for(y in 1..bHeight){
@@ -89,7 +93,7 @@ class AsciiCompositor(ah:ActionHandler) : UICompositor(ah){
                         val y:Int = offsetY+y
                         val x:Int = offsetX+x
                         System.out.print(String.format("%c[%d;%df",ESC,y+WINDOW_GAME_Y_OFFSET+1,x+1))//console cursor position
-                        System.out.print(e.getOccupyRepresentation(block.pos))//ASCII character
+                        System.out.print(e.getOccupyRepresentation(block.pos,block.rota))//ASCII character
                     }
                 }
             }

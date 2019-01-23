@@ -5,6 +5,7 @@ import models.NotificationType
 import mu.KLogger
 import mu.KotlinLogging
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.write
 
@@ -17,8 +18,8 @@ class ActionHandler : NotifyThread(){
     private var kill = false
     private val pendingLock = ReentrantReadWriteLock()
     private val notifyLock = ReentrantReadWriteLock()
-    private val pending: Deque<Notification> = LinkedList<Notification>()
-    private val notifier: Deque<Notification> = LinkedList<Notification>()
+    private val pending: Deque<Notification> = ConcurrentLinkedDeque<Notification>()
+    private val notifier: Deque<Notification> = ConcurrentLinkedDeque<Notification>()
 
     override fun run() {
         log = KotlinLogging.logger(this::class.java.name)
@@ -28,7 +29,7 @@ class ActionHandler : NotifyThread(){
         subscribeNotification(Notification(this,NotificationType.SIGNAL))
 
         while(!kill){
-            notifyLock.write {
+            //notifyLock.write {
                 for(np in pending){
                     for(ntf in notifier){
                         if(np.type == ntf.type){
@@ -37,8 +38,8 @@ class ActionHandler : NotifyThread(){
                     }
                 }
                 pending.clear()
-            }
-            Thread.sleep(32)
+            //}
+            Thread.sleep(1)
         }
         log.info { "ActionHandler stopped gracefully!" }
     }
@@ -54,9 +55,9 @@ class ActionHandler : NotifyThread(){
      * Notifies all subscribed other threads
      */
     fun notify(notification:Notification){
-        pendingLock.write {
-            pending.add(notification)
-        }
+        //pendingLock.write {
+        pending.add(notification)
+        //}
     }
 
     /**
@@ -64,9 +65,9 @@ class ActionHandler : NotifyThread(){
      * action performed
      */
     fun subscribeNotification(notification:Notification){
-        notifyLock.write {
+        //notifyLock.write {
             notifier.add(notification)
-        }
+        //}
     }
 
     /**
@@ -74,8 +75,8 @@ class ActionHandler : NotifyThread(){
      * actions
      */
     fun unsubscribeNotification(notification:Notification){
-        notifyLock.write {
+        //notifyLock.write {
             notifier.remove(notification)
-        }
+        //}
     }
 }

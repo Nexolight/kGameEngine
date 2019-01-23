@@ -1,14 +1,19 @@
 import abstracted.LogicCompositor
 import abstracted.ui.AsciiCompositor
 import abstracted.UICompositor
+import abstracted.entity.presets.TextEntity
+import abstracted.ui.DummyCompositor
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.util.Pool
 import games.snake.SnakeGameLogic
 import flow.ActionHandler
 import flow.NotifyThread
-import models.Notification
-import models.NotificationType
+import models.*
 import mu.KotlinLogging
 import sun.misc.Signal
 import sun.misc.SignalHandler
+import java.util.*
+import java.util.concurrent.ConcurrentLinkedDeque
 
 /**
  * Class that handles the game sequence
@@ -16,18 +21,40 @@ import sun.misc.SignalHandler
 class Engine : NotifyThread(){
     private val self:Engine = this
     private val log = KotlinLogging.logger(this::class.java.name)
+
+
+    var kryoPool:Pool<Kryo> = object : Pool<Kryo>(true, false, 8) {
+        override fun create(): Kryo {
+            val kryo:Kryo = Kryo()
+            kryo.isRegistrationRequired = false
+            kryo.register(ConcurrentLinkedDeque::class.java)
+            kryo.register(LinkedList::class.java)
+            kryo.register(ArrayList::class.java)
+            kryo.register(HashMap::class.java)
+            kryo.register(Buff::class.java)
+            kryo.register(HighScore::class.java)
+            kryo.register(Position::class.java)
+            kryo.register(Rotation::class.java)
+            kryo.register(Size::class.java)
+            kryo.register(Field::class.java)
+            kryo.register(TextEntity::class.java)
+            kryo.register(AdvancedQube::class.java)
+            return kryo
+        }
+    }
+
+
     private val ah: ActionHandler = ActionHandler()
-    private val uic:UICompositor = AsciiCompositor(ah)
-    private val lc:LogicCompositor = SnakeGameLogic(ah)
-    //private val playerLogic:Logic = PlayerLogic(ah)
-    //private val spawnLogic:Logic = SpawnLogic(ah)
+    private val uic:UICompositor = AsciiCompositor(ah,kryoPool)//DummyCompositor(ah,kryoPool)
+    private val lc:LogicCompositor = SnakeGameLogic(ah,kryoPool)
 
     /**
      * Start the game
      */
-    fun exec(){
+    override fun run(){
         log.info { "Engine started!" }
         ah.start()
+        //uic(n) : lc(0-1)
         uic.start()
         lc.start()
 
@@ -42,8 +69,8 @@ class Engine : NotifyThread(){
                 System.exit(0)
             }
         })
-
     }
+
 
     override fun onNotify(n: Notification) {
         //pass

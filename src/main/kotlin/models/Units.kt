@@ -1,8 +1,13 @@
 package models
 
+/**
+ * The effective value of an internal
+ * game unit.
+ */
 class BaseUnits{
     companion object {
         val ONE:Double = 25.00
+        val FLAT:Double = 0.0001 //Intended for text panes TODO: evaluate
     }
 }
 
@@ -12,13 +17,28 @@ class SquareUnits{
     }
 }
 
-class SimpleQube(pos:Position,widthBaseUnits:Int=0,heightBaseUnits:Int=0,depthBaseUnits:Int=0){
-    val pos = pos
-    val width:Double = widthBaseUnits*BaseUnits.ONE
-    val height:Double = heightBaseUnits*BaseUnits.ONE
-    val depth:Double = depthBaseUnits*BaseUnits.ONE
+/**
+ * A simple 3D qube with position and size
+ */
+class AdvancedQube(
+        val pos:Position = Position(0,0,0),
+        val size:Size = Size(0,0,0),
+        val rota:Rotation = Rotation(0.0,0.0,0.0),
+        val pivotOffset:Position = Position(0,0,0)
+){
+
+    /**
+     * Returns the pivot point
+     */
+    fun getPivot():Position{
+        val pivot:Position = Position(0,0,0)
+        pivot.x = (pos.x/2)+pivotOffset.x
+        pivot.y = (pos.y/2)+pivotOffset.y
+        pivot.z = (pos.z/2)+pivotOffset.z
+        return pivot
+    }
 
     override fun toString():String{
-        return "Block: width: $width, height: $height, depth: $depth"
+        return "${size.toString()} | ${pos.toString()} | ${rota.toString()}"
     }
 }

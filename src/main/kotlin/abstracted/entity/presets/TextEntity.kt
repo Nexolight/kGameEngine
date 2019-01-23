@@ -1,10 +1,8 @@
-package games.snake.entitylogic.entities
+package abstracted.entity.presets
 
 import abstracted.entity.StaticEntity
 import abstracted.ui.`if`.ASCIISupport
-import models.BaseUnits
-import models.Position
-import models.SimpleQube
+import models.*
 import kotlin.math.floor
 
 enum class Align{
@@ -13,21 +11,31 @@ enum class Align{
 
 /**
  * This entity can be used to display text on the field
+ * TODO: add 3d support
+ *
  */
-class TextEntity(pos:Position) : StaticEntity(pos), ASCIISupport{
+class TextEntity : StaticEntity, ASCIISupport{
+
+    constructor():super(){}
+    constructor(pos: Position, rotation:Rotation = Rotation(0.0,0.0,0.0)) : super(pos,rotation){}
+
     private var text:String = ""
     private var cols:Int = 0
-    private var occupies:MutableList<SimpleQube> = ArrayList<SimpleQube>()
+    private var occupies:MutableList<AdvancedQube> = ArrayList<AdvancedQube>()
     private var chars:HashMap<Position,Char> = HashMap<Position,Char>()
 
+
     /**
-     * Update the text for this entity
+     * Update the text in this entity
+     * newtext: The new text to show
+     * cols:    The max width (linewrap)
+     * align:   The alignment
      */
-    fun updateText(newtext:String,cols:Int,align:Align=Align.LEFT){
+    fun updateText(newtext:String,cols:Int,align: Align = Align.LEFT){
         occupies.clear()
         chars.clear()
-        var col:Int = (super.position.x/BaseUnits.ONE).toInt()
-        var row:Int = (super.position.y/BaseUnits.ONE).toInt()
+        var col:Int = (super.position.x/ BaseUnits.ONE).toInt()
+        var row:Int = (super.position.y/ BaseUnits.ONE).toInt()
 
         for(line in newtext.split('\n')){//split by custom new line
             for(lrow in line.split(".{$cols}")){//line wrap
@@ -42,16 +50,20 @@ class TextEntity(pos:Position) : StaticEntity(pos), ASCIISupport{
                     if(delta > 0){
                         lfill=delta
                     }
-                    val chrpos:Position = Position(col+lfill,row,0)
-                    occupies.add(SimpleQube(chrpos,1,1,0))
+                    val chrpos: Position = Position(col + lfill, row, 0)
+
+                    occupies.add(AdvancedQube(
+                            chrpos,
+                            Size(1, 1, 0).makeFlat(),
+                            Rotation(0.0,0.0,0.0)))
                     chars.put(chrpos,chr)
                     ++col
                 }
                 ++row
-                col = (super.position.x/BaseUnits.ONE).toInt()
+                col = (super.position.x/ BaseUnits.ONE).toInt()
             }
             ++row
-            col = (super.position.x/BaseUnits.ONE).toInt()
+            col = (super.position.x/ BaseUnits.ONE).toInt()
         }
     }
 
@@ -59,15 +71,17 @@ class TextEntity(pos:Position) : StaticEntity(pos), ASCIISupport{
         return false //text shouldn't be blocking at all
     }
 
-    override fun occupiesSimple(): List<SimpleQube> {
+    override fun occupies(): List<AdvancedQube> {
         return occupies
     }
 
-    override fun getOccupyRepresentation(pos: Position): Char {
+    override fun getOccupyRepresentation(pos: Position, rota:Rotation): Char {
         val chr:Char? = chars.get(pos)
         if(chr != null){
             return chr
         }
         return ' '
     }
+
+
 }

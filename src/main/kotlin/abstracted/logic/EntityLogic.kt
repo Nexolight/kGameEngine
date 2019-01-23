@@ -7,6 +7,13 @@ import flow.NotifyThread
  * that it controls in it's own thread
  */
 abstract class EntityLogic() : NotifyThread() {
+
+    /**
+     * The caller trhead must not handle the logic
+     * of an individual entity thread
+     *
+     * Thus a property is used to listen on.
+     */
     private var aR:Boolean = false
 
     /**
@@ -25,7 +32,7 @@ abstract class EntityLogic() : NotifyThread() {
     /**
      * Indicates that the ActionRequest was handled
      */
-    fun actionRequestDone(){
+    protected fun actionRequestDone(){
         aR = false
     }
 

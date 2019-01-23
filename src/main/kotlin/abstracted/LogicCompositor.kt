@@ -1,28 +1,40 @@
 package abstracted
 
+import abstracted.entity.presets.TextEntity
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.Output
+import com.esotericsoftware.kryo.util.Pool
 import flow.ActionHandler
 import flow.NotifyThread
-import models.Field
-import models.Notification
-import models.NotificationType
+import models.*
 import mu.KLogger
 import mu.KotlinLogging
+import java.io.ByteArrayOutputStream
+import java.io.OutputStream
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
-abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
+abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThread(){
     companion object {
         val maxLogLen:Int = 5//TODO: parameter
-        val defaultFrameCap:Long = 16
     }
 
     lateinit var log: KLogger
     private var kill = false
-    private val ah:ActionHandler = ah
+    protected val ah:ActionHandler = ah
     private val uics:ConcurrentLinkedDeque<UICompositor> = ConcurrentLinkedDeque<UICompositor>()
-    private val pendingUics:ConcurrentLinkedQueue<UICompositor> = ConcurrentLinkedQueue<UICompositor>()
+    protected val kryoPool:Pool<Kryo> = kryoPool
+
+    /**
+     * The field must be deepcopied before sending
+     * it to the UIComposer.
+     *
+     * This should be done after an action request
+     * that alters this field with every run.
+     *
+     */
     abstract var field:Field
 
     /**
@@ -32,54 +44,47 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
      */
     private val iglog:CopyOnWriteArrayList<String> = CopyOnWriteArrayList<String>()
 
-    private var renderDelay:Long = 0
     private var actionRequestDelay:Long = 0
-    var renderTicks:Long = 0
-        private set
     var actionRequestTicks:Long = 0
         private set
-
-    /**
-     * Controls the time delay between each frame
-     */
-    var framecap:Long = defaultFrameCap//TODO: ingame setting?
-
 
     override fun run(){
         log = KotlinLogging.logger(this::class.java.name)
         log.info { "LogicCompositor started!" }
         ah.subscribeNotification(Notification(this,NotificationType.SIGNAL))
         ah.subscribeNotification(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE))
+        ah.subscribeNotification(Notification(this,NotificationType.INGAME_LOG_INFO))
+        ah.subscribeNotification(Notification(this,NotificationType.INGAME_LOG_WARN))
+        ah.subscribeNotification(Notification(this,NotificationType.INGAME_LOG_ERROR))
+        ah.notify(Notification(this,NotificationType.NEW_LOGIC_COMPOSITOR_AVAILABLE,this))
+        var updated:Boolean = false
         while(!kill){
-            while(pendingUics.isNotEmpty()){//A consumer registered
-                uics.add(pendingUics.poll())
-            }
-            if(uics.isEmpty()){//No consumers available
-                Thread.sleep(framecap)
-                continue
-            }
 
-            if(actionRequestDelay > 0){
-                actionRequestDelay-=framecap
-            }else{
-                actionRequestDelay = 0
-                requestAction()
-                ++actionRequestTicks
-            }
+            requestAction()
+            ++actionRequestTicks
 
+            //serialize for UIComposers
+            val kryo:Kryo = kryoPool.obtain()
+            val serialField:ByteArrayOutputStream = ByteArrayOutputStream()
+            val kryoOut:Output = Output(serialField)
+            kryo.writeObject(kryoOut,field)
+            kryoOut.flush()
+            kryoOut.close()
+
+            //Multiplex too all UIComposers
             for(uic in uics){
                 if(uic.isAlive){
-                    uic.onLCReady(field)
+                    uic.onLCReady(serialField.toByteArray())
                     uic.onLCReady(iglog)
                 }
-
             }
-            ++renderTicks
-            if(renderDelay > 0){
-                Thread.sleep(renderDelay)
-                renderDelay = 0
-            }else{//TODO: this is a framecap - should be a setting
-                Thread.sleep(framecap)
+            kryoPool.free(kryo)
+
+            if(actionRequestDelay > 0){
+                Thread.sleep(actionRequestDelay)
+                actionRequestDelay = 0
+            }else{
+                Thread.sleep(1)//limit at 1000
             }
         }
         log.info { "LogicCompositor stopped gracefully!" }
@@ -125,14 +130,6 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
     abstract fun requestAction()
 
     /**
-     * Artificially increase the time until the compositor
-     * is requested to draw the next frame
-     */
-    fun addRenderDelay(ms:Long){
-        renderDelay+=ms
-    }
-
-    /**
      * Artificially increase the time until the next
      * Action is requested
      */
@@ -165,7 +162,7 @@ abstract class LogicCompositor(ah:ActionHandler) : NotifyThread(){
                 return
             }
             log.info { "New UICompositor noticed" }
-            pendingUics.add(n.uic)
+            uics.add(n.uic)
             return
         }
         if(n.type == NotificationType.SIGNAL && n.n == 2){

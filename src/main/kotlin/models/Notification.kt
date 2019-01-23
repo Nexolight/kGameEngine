@@ -50,11 +50,11 @@ class Notification(
     /**
      * Notify with a LogicCompositor
      */
-    constructor(thread:NotifyThread, type:NotificationType, lc:LogicCompositor) : this(thread,type,0.toChar(),"",0,lc,null){}
+    constructor(thread:NotifyThread, type:NotificationType, lc:LogicCompositor) : this(thread, type, 0.toChar(),"",0,lc,null){}
 
     /**
      * Notify with a UICOmpositor
      */
-    constructor(thread:NotifyThread, type:NotificationType, ulc:UICompositor) : this(thread,type,0.toChar(),"",0,null,ulc){}
+    constructor(thread:NotifyThread, type:NotificationType, ulc:UICompositor) : this(thread, type, 0.toChar(),"",0,null,ulc){}
 
 }

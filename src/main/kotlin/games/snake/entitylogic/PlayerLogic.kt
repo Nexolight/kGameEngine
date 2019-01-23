@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * The player logic
  * Applies user inputs to the SnakeEntity
  */
-class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
+class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
     var kill:Boolean = false
     var moveTo:Char = 'a' //left by default
     var commitedMove = ' '

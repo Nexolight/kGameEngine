@@ -67,10 +67,6 @@ class TextEntity : StaticEntity, ASCIISupport{
         }
     }
 
-    override fun blocks(pos: Position): Boolean {
-        return false //text shouldn't be blocking at all
-    }
-
     override fun occupies(): List<AdvancedQube> {
         return occupies
     }

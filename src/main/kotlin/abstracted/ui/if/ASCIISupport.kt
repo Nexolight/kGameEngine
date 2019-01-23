@@ -20,5 +20,6 @@ interface ASCIISupport {
      * Returns a simplified list with blocks
      * that the entity occupies
      */
-    abstract fun occupies():List<AdvancedQube>
+    fun occupies():List<AdvancedQube>
+
 }

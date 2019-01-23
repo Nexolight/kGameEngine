@@ -19,10 +19,4 @@ abstract class Entity{
         this.position=position
         this.rotation=rotation
     }
-
-
-    /**
-     * Returns true if the entity blocks the given position
-     */
-    abstract fun blocks(pos:Position):Boolean
 }

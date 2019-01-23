@@ -11,4 +11,5 @@ interface SpaceSupport {
     //fun getMeshes():List<Mesh>
     //fun getBounds():AdvancedQube
     //fun maxRenderRange():Double
+    //fun getCollider():OrthogonCollider
 }

@@ -1,28 +1,31 @@
 package games.snake.entitylogic.entities
 
+import abstracted.Entity
 import abstracted.entity.MovingEntity
 import abstracted.ui.`if`.ASCIISupport
 import games.snake.SnakeDefaultParams
 import models.*
+import physics.`if`.OrthogonCollider
+import java.util.concurrent.Callable
 
 /**
  * Represents a player controllable snake
  * TODO: add 3d support
  */
-class SnakeEntity: MovingEntity,ASCIISupport {
+class SnakeEntity: MovingEntity,ASCIISupport,OrthogonCollider {
 
     /**
      * Body representation of the snake
      * The first entry will always be the head at this entities
      * position
      */
-    public val body:ArrayList<AdvancedQube> = ArrayList<AdvancedQube>() //TODO: private
+    val body:ArrayList<AdvancedQube> = ArrayList<AdvancedQube>() //TODO: private
+    var onCollide:Callable<SnakeCollisionCallbackArgs>? = null //
     private var nextMoveEnlarge:Boolean = false
 
     constructor():super(){}
 
     constructor(pos:Position, rota:Rotation):super(pos, rota){
-
         body.add(AdvancedQube(
                 Position().pasteFrom(pos),
                 Size(1,1,1),
@@ -92,10 +95,6 @@ class SnakeEntity: MovingEntity,ASCIISupport {
         body.first().rota.transform(rotaTransform)
     }
 
-    override fun blocks(pos: Position): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
 
     override fun getOccupyRepresentation(pos: Position, rota: Rotation): Char {
         if(body.first().pos.x == pos.x && body.first().pos.y == pos.y){
@@ -116,4 +115,16 @@ class SnakeEntity: MovingEntity,ASCIISupport {
     override fun occupies(): List<AdvancedQube> {
         return body
     }
+
+    override fun getColliderBlocks(): List<SimpleQube> {
+        return body
+    }
+
+    override fun onOrthogonalCollide(collisionOn: SimpleQube, collidingWith: Entity) {
+        //TODO: Implement
+    }
+
 }
+
+
+class SnakeCollisionCallbackArgs(val snake:SnakeEntity, val collisionWith:Entity){}

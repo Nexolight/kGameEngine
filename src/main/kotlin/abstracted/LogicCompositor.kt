@@ -15,6 +15,8 @@ import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
 
 abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThread(){
     companion object {
@@ -36,6 +38,7 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
      *
      */
     abstract var field:Field
+    private val fieldLock = ReentrantReadWriteLock()
 
     /**
      * Either we deepcopy the list we send to the UIC or
@@ -67,7 +70,9 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
             val kryo:Kryo = kryoPool.obtain()
             val serialField:ByteArrayOutputStream = ByteArrayOutputStream()
             val kryoOut:Output = Output(serialField)
-            kryo.writeObject(kryoOut,field)
+            fieldLock.read {
+                kryo.writeObject(kryoOut,field)
+            }
             kryoOut.flush()
             kryoOut.close()
 

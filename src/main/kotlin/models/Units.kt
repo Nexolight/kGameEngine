@@ -17,13 +17,13 @@ class SquareUnits{
     }
 }
 
+
 /**
- * A simple 3D qube with position and size
+ * A simple 3d Qube that does not have any rotation
  */
-class AdvancedQube(
+open class SimpleQube(
         val pos:Position = Position(0,0,0),
         val size:Size = Size(0,0,0),
-        val rota:Rotation = Rotation(0.0,0.0,0.0),
         val pivotOffset:Position = Position(0,0,0)
 ){
 
@@ -37,6 +37,21 @@ class AdvancedQube(
         pivot.z = (pos.z/2)+pivotOffset.z
         return pivot
     }
+
+    override fun toString():String{
+        return "${size.toString()} | ${pos.toString()}}"
+    }
+}
+
+/**
+ * A simple 3D qube with position size and rotation
+ */
+class AdvancedQube(
+        pos:Position = Position(0,0,0),
+        size:Size = Size(0,0,0),
+        val rota:Rotation = Rotation(0.0,0.0,0.0),
+        pivotOffset:Position = Position(0,0,0)
+) : SimpleQube(pos,size,pivotOffset){
 
     override fun toString():String{
         return "${size.toString()} | ${pos.toString()} | ${rota.toString()}"

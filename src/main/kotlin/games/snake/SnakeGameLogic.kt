@@ -15,7 +15,7 @@ class SnakeGameLogic : LogicCompositor{
 
     var firstAction:Boolean = true
     val welcome: TextEntity = TextEntity(Position(2, 10, 0))
-    override var field: Field = Field(SnakeParams.mapwidth,SnakeParams.mapheight)
+    override var field: Field = Field(SnakeDefaultParams.mapwidth,SnakeDefaultParams.mapheight)
     var player:PlayerLogic? = null
 
     constructor(ah:ActionHandler,kryoPool: Pool<Kryo>):super(ah,kryoPool){
@@ -40,11 +40,11 @@ class SnakeGameLogic : LogicCompositor{
                 genMap()
                 field.entities.add(welcome)
             }
-            if(super.actionRequestTicks < 5){
+            if(super.actionRequestTicks < SnakeDefaultParams.welcomeTimer){
                 super.addActionRequestDelay(1000)
                 welcome.updateText(
-                        "${SnakeParams.welcomeMsg}\n${5-super.actionRequestTicks}",
-                        SnakeParams.mapwidth-4,
+                        "${SnakeDefaultParams.welcomeMsg}\n${5-super.actionRequestTicks}",
+                        SnakeDefaultParams.mapwidth-4,
                         Align.CENTER)
             }else{
                 field.entities.remove(welcome)
@@ -53,7 +53,7 @@ class SnakeGameLogic : LogicCompositor{
             }
         }else{
             //TODO: ingame menu speed option
-            super.addActionRequestDelay(16)
+            super.addActionRequestDelay(SnakeDefaultParams.tickSpeed)
         }
 
 
@@ -69,7 +69,7 @@ class SnakeGameLogic : LogicCompositor{
     fun genSnake(){
         val newPlayer:PlayerLogic = PlayerLogic(
                 SnakeEntity(
-                        Position(SnakeParams.mapwidth/2,SnakeParams.mapheight/2,0),
+                        Position(SnakeDefaultParams.mapwidth/2,SnakeDefaultParams.mapheight/2,0),
                         Rotation(0.0,0.0,0.0)
         ), ah)
         field.entities.add(newPlayer.snake)
@@ -84,25 +84,25 @@ class SnakeGameLogic : LogicCompositor{
         field.entities.add(
             WallEntity(
                     Position(0,0,0),
-                    Size(SnakeParams.mapwidth,1,0),
+                    Size(SnakeDefaultParams.mapwidth,1,0),
                     Rotation(0.0,0.0,0.0))
         )
         field.entities.add(
             WallEntity(
-                    Position(0,SnakeParams.mapheight-1,0),
-                    Size(SnakeParams.mapwidth,1,0),
+                    Position(0,SnakeDefaultParams.mapheight-1,0),
+                    Size(SnakeDefaultParams.mapwidth,1,0),
                     Rotation(0.0,0.0,0.0))
         )
         field.entities.add(
             WallEntity(
                     Position(0,1,0),
-                    Size(1,SnakeParams.mapheight-2,0),
+                    Size(1,SnakeDefaultParams.mapheight-2,0),
                     Rotation(0.0,0.0,0.0))
         )
         field.entities.add(
             WallEntity(
-                    Position(SnakeParams.mapwidth-1,1,0),
-                    Size(1,SnakeParams.mapheight-2,0),
+                    Position(SnakeDefaultParams.mapwidth-1,1,0),
+                    Size(1,SnakeDefaultParams.mapheight-2,0),
                     Rotation(0.0,0.0,0.0))
         )
     }

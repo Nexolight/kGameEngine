@@ -3,6 +3,7 @@ package games.snake.entitylogic
 import abstracted.logic.EntityLogic
 import flow.ActionHandler
 import flow.NotifyThread
+import games.snake.SnakeDefaultParams
 import games.snake.entitylogic.entities.SnakeEntity
 import models.*
 import java.util.*
@@ -17,7 +18,7 @@ class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
     var kill:Boolean = false
     var moveTo:Char = 'a' //left by default
     var commitedMove = ' '
-    var initialFeed = 6
+    var initialFeed = SnakeDefaultParams.initialFeed
 
     override fun run(){
         ah.subscribeNotification(Notification(this,NotificationType.USERINPUT))
@@ -38,7 +39,7 @@ class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
 
                 //TODO: Key rebinding via broadcast and menu
                 when(moveTo){
-                    'w' -> {
+                    SnakeDefaultParams.ctrlFWD -> {
                         snake.transform(Position(0,-1,0))
                         snake.transform(Rotation(
                                 snake.getRotationValues().xAxis*-1,
@@ -47,7 +48,7 @@ class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
                         )
                         commitedMove=moveTo
                     }
-                    'a' -> {
+                    SnakeDefaultParams.ctrlLEFT -> {
                         snake.transform(Position(-1,0,0))
                         snake.transform(
                                 Rotation(
@@ -57,7 +58,7 @@ class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
                         )
                         commitedMove=moveTo
                     }
-                    's' -> {
+                    SnakeDefaultParams.ctrlBWD -> {
                         snake.transform(Position(0,1,0))
                         snake.transform(
                                 Rotation(
@@ -67,7 +68,7 @@ class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
                         )
                         commitedMove=moveTo
                     }
-                    'd' -> {
+                    SnakeDefaultParams.ctrlRIGHT -> {
                         snake.transform(Position(1,0,0))
                         snake.transform(
                                 Rotation(
@@ -83,8 +84,7 @@ class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
                 //}
                 super.actionRequestDone()
             }else{
-                //TODO: Change reaction lag via broadcast and menu
-                Thread.sleep(16)
+                Thread.sleep(1)
             }
         }
     }
@@ -99,16 +99,23 @@ class PlayerLogic(val snake:SnakeEntity, val ah:ActionHandler): EntityLogic(){
             if(commitedMove == inp){
                 return
             }
-            //filter
-            if(inp !in Arrays.asList('w','a','s','d')){
+
+            //movement filter
+            if(inp !in Arrays.asList(
+                SnakeDefaultParams.ctrlFWD,
+                SnakeDefaultParams.ctrlLEFT,
+                SnakeDefaultParams.ctrlBWD,
+                SnakeDefaultParams.ctrlRIGHT)
+            ){
                 return
             }
-            //disalow backward
+
+            //disallow player to move into himself
             if(
-                    (inp == 'w' && commitedMove == 's') ||
-                    (inp == 'a' && commitedMove == 'd') ||
-                    (inp == 's' && commitedMove == 'w') ||
-                    (inp == 'd' && commitedMove == 'a')
+                    (inp == SnakeDefaultParams.ctrlFWD && commitedMove == SnakeDefaultParams.ctrlBWD) ||
+                    (inp == SnakeDefaultParams.ctrlLEFT && commitedMove == SnakeDefaultParams.ctrlRIGHT) ||
+                    (inp == SnakeDefaultParams.ctrlBWD && commitedMove == SnakeDefaultParams.ctrlFWD) ||
+                    (inp == SnakeDefaultParams.ctrlRIGHT && commitedMove == SnakeDefaultParams.ctrlLEFT)
             ){
                 return
             }

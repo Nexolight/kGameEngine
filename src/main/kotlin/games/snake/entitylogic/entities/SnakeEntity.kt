@@ -2,6 +2,7 @@ package games.snake.entitylogic.entities
 
 import abstracted.entity.MovingEntity
 import abstracted.ui.`if`.ASCIISupport
+import games.snake.SnakeDefaultParams
 import models.*
 
 /**
@@ -98,18 +99,18 @@ class SnakeEntity: MovingEntity,ASCIISupport {
 
     override fun getOccupyRepresentation(pos: Position, rota: Rotation): Char {
         if(body.first().pos.x == pos.x && body.first().pos.y == pos.y){
-            return '@'
+            return SnakeDefaultParams.asciiHEAD
         }else if(body.last().pos == pos){
             when(rota.xAxis){
-                0.0,-0.0 -> return 'I'
-                90.0,-270.0 -> return '\\'
-                180.0,-180.0 -> return 'I'
-                -90.0,270.0 -> return '/'
+                0.0,-0.0 -> return SnakeDefaultParams.asciiTailMvUp
+                90.0,-270.0 -> return SnakeDefaultParams.asciiTailMvRight
+                180.0,-180.0 -> return SnakeDefaultParams.asciiTailMvDown
+                -90.0,270.0 -> return SnakeDefaultParams.asciiTailMvLeft
             }
-            return 'X'
+            return 'X'//broken should not appear
 
         }
-        return '0'
+        return SnakeDefaultParams.asciiBODY
     }
 
     override fun occupies(): List<AdvancedQube> {

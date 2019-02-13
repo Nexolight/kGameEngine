@@ -1,6 +1,8 @@
 package physics.`if`
 
 import abstracted.Entity
+import abstracted.logic.EntityLogic
+import models.AdvancedQube
 import models.SimpleQube
 
 /**
@@ -13,13 +15,6 @@ interface OrthogonCollider {
      * Returns a list of colliding rectangles
      * that will be checked for collision
      */
-    fun getColliderBlocks():List<SimpleQube>
+    fun getColliderBlocks():List<AdvancedQube>
 
-    /**
-     * If a collision happens this will be called
-     * as a feedback on which of the collider blocks
-     * the collision happened and with which entity it
-     * has collided
-     */
-    fun onOrthogonalCollide(collisionOn: SimpleQube, collidingWith:Entity)
 }

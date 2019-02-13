@@ -2,20 +2,31 @@ package abstracted
 
 import abstracted.entity.presets.TextEntity
 import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
+import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.ListeningExecutorService
+import com.google.common.util.concurrent.MoreExecutors
 import flow.ActionHandler
 import flow.NotifyThread
+import games.snake.entitylogic.entities.SnakeEntity
+import games.snake.entitylogic.entities.WallEntity
 import models.*
 import mu.KLogger
 import mu.KotlinLogging
+import physics.`if`.*
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.util.*
+import java.util.concurrent.Callable
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.collections.ArrayList
 import kotlin.concurrent.read
 
 abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThread(){
@@ -28,6 +39,9 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
     protected val ah:ActionHandler = ah
     private val uics:ConcurrentLinkedDeque<UICompositor> = ConcurrentLinkedDeque<UICompositor>()
     protected val kryoPool:Pool<Kryo> = kryoPool
+    private val executorService:ListeningExecutorService = MoreExecutors.listeningDecorator(
+            Executors.newCachedThreadPool()
+    )
 
     /**
      * The field must be deepcopied before sending
@@ -76,6 +90,9 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
             kryoOut.flush()
             kryoOut.close()
 
+            //Start the collision detection
+            asyncCollisionDetection(serialField.toByteArray())
+
             //Multiplex too all UIComposers
             for(uic in uics){
                 if(uic.isAlive){
@@ -93,6 +110,63 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
             }
         }
         log.info { "LogicCompositor stopped gracefully!" }
+    }
+
+    /**
+     * Colliders are usually one of the most heavy parts to process
+     * thus we're gonna try to do this async and see how it turns out.
+     *
+     * Worst case would be a delayed collision that could be corrected
+     * after the collision happened.
+     */
+    fun asyncCollisionDetection(serializedField: ByteArray){
+
+        executorService.submit(Callable{
+            val kryo:Kryo = kryoPool.obtain()
+            val kryoIn: Input = Input(ByteArrayInputStream(serializedField))
+            val fieldSnapshot:Field = kryo.readObject(kryoIn,Field::class.java)
+            kryoIn.close()
+            kryoPool.free(kryo)
+            syncCollisionDetection(fieldSnapshot)
+        })
+    }
+
+    /**
+     * Synchron collision detection
+     * TODO: allow game implementation to choose this over async
+     * TODO: Use some proper math or a physic library.
+     */
+    fun syncCollisionDetection(fieldSnapshot:Field){
+        for(entity:Entity in fieldSnapshot.entities){
+
+            /**
+             * We only want to check for collisions on rigid bodys
+             */
+            if(entity is RigidBody){
+                /**
+                 * Need to check intersection with all colliders
+                 * TODO: add filter bounds
+                 */
+                for(collider in fieldSnapshot.entities){
+                    if(collider is OrthogonCollider){
+                        //TODO: OrthogonCollider implementation
+                    }else if(collider is PositionalCollider){
+                        for(colliderPos in collider.getColliderPositions()){
+                            if(entity.intersectsRigidBody(colliderPos)){
+                                //igLogI("COLLISION")
+                                ah.notify(Notification(
+                                        this,
+                                        NotificationType.COLLISION,
+                                        Collision(collider,entity)
+                                ))
+                            }
+                        }
+
+                    }
+                    //TODO: add other types of colliders
+                }
+            }
+        }
     }
 
     /**

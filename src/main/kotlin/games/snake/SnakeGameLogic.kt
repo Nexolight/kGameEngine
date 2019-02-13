@@ -59,6 +59,14 @@ class SnakeGameLogic : LogicCompositor{
 
         if(player != null){
             player?.actionRequest()
+            /**
+             * TODO:
+             * at this point updates need to be finished
+             * otherwise it will mess up the serialization
+             */
+            while(player?.actionRequestPending() == true){
+                Thread.sleep(1)
+            }
         }
 
     }

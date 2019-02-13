@@ -5,23 +5,23 @@ import abstracted.entity.MovingEntity
 import abstracted.ui.`if`.ASCIISupport
 import games.snake.SnakeDefaultParams
 import models.*
-import physics.`if`.OrthogonCollider
-import java.util.concurrent.Callable
+import physics.`if`.PositionalCollider
+import java.util.*
 
 /**
  * Represents a player controllable snake
  * TODO: add 3d support
  */
-class SnakeEntity: MovingEntity,ASCIISupport,OrthogonCollider {
+class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider {
 
     /**
      * Body representation of the snake
      * The first entry will always be the head at this entities
      * position
      */
-    val body:ArrayList<AdvancedQube> = ArrayList<AdvancedQube>() //TODO: private
-    var onCollide:Callable<SnakeCollisionCallbackArgs>? = null //
+    private val body:ArrayList<AdvancedQube> = ArrayList<AdvancedQube>()
     private var nextMoveEnlarge:Boolean = false
+    private val uuid:String = UUID.randomUUID().toString()
 
     constructor():super(){}
 
@@ -116,15 +116,29 @@ class SnakeEntity: MovingEntity,ASCIISupport,OrthogonCollider {
         return body
     }
 
-    override fun getColliderBlocks(): List<SimpleQube> {
-        return body
+    override fun getColliderPositions(): List<Position> {
+        /**
+         * We only check the head.
+         */
+        return Arrays.asList(body.get(0).pos)
     }
 
-    override fun onOrthogonalCollide(collisionOn: SimpleQube, collidingWith: Entity) {
-        //TODO: Implement
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SnakeEntity
+
+        if (uuid != other.uuid) return false
+
+        return true
     }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
+
 
 }
 
 
-class SnakeCollisionCallbackArgs(val snake:SnakeEntity, val collisionWith:Entity){}

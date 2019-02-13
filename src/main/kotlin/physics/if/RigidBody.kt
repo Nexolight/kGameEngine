@@ -13,4 +13,10 @@ interface RigidBody {
      * is inside of a rigid body
      */
     fun intersectsRigidBody(pos: Position): Boolean
+
+    /**
+     * Returns true if one of the given positions is
+     * inside of a rigid body
+     */
+    fun intersectsRigidBody(pos: List<Position>): Boolean
 }

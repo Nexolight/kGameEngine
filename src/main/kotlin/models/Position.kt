@@ -18,12 +18,12 @@ class Position(){
     }
 
     /**
-     * Initialize by multiplying with base units
+     * Initialize directly
      */
     constructor(xBaseUnits:Double=0.0,yBaseUnits:Double=0.0,zBaseUnits:Double=0.0) : this(){
-        this.x=xBaseUnits*BaseUnits.ONE
-        this.y=yBaseUnits*BaseUnits.ONE
-        this.z=zBaseUnits*BaseUnits.ONE
+        this.x=xBaseUnits
+        this.y=yBaseUnits
+        this.z=zBaseUnits
     }
 
     /**

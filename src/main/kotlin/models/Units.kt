@@ -1,5 +1,7 @@
 package models
 
+import java.util.*
+
 /**
  * The effective value of an internal
  * game unit.
@@ -16,7 +18,6 @@ class SquareUnits{
         val SQUARE:Pair<Int,Double> = Pair<Int,Double>(2,BaseUnits.ONE)
     }
 }
-
 
 /**
  * A simple 3d Qube that does not have any rotation

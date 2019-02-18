@@ -56,9 +56,9 @@ class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
                     SnakeDefaultParams.ctrlFWD -> {
                         snake.transform(Position(0,-1,0))
                         snake.transform(Rotation(
-                                snake.getRotationValues().xAxis*-1,
                                 0.0,
-                                0.0)
+                                0.0,
+                                snake.getRotationValues().zAxis*-1)
                         )
                         commitedMove=moveTo
                     }
@@ -66,9 +66,9 @@ class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
                         snake.transform(Position(-1,0,0))
                         snake.transform(
                                 Rotation(
-                                        (snake.getRotationValues().xAxis*-1)-90,
                                         0.0,
-                                        0.0)
+                                        0.0,
+                                        (snake.getRotationValues().zAxis*-1)-90)
                         )
                         commitedMove=moveTo
                     }
@@ -76,9 +76,9 @@ class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
                         snake.transform(Position(0,1,0))
                         snake.transform(
                                 Rotation(
-                                        (snake.getRotationValues().xAxis*-1)+180,
                                         0.0,
-                                        0.0)
+                                        0.0,
+                                        (snake.getRotationValues().zAxis*-1)+180)
                         )
                         commitedMove=moveTo
                     }
@@ -86,9 +86,9 @@ class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
                         snake.transform(Position(1,0,0))
                         snake.transform(
                                 Rotation(
-                                        (snake.getRotationValues().xAxis*-1)+90,
                                         0.0,
-                                        0.0)
+                                        0.0,
+                                        (snake.getRotationValues().zAxis*-1)+90)
                         )
                         commitedMove=moveTo
                     }

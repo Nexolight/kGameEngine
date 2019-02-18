@@ -21,9 +21,9 @@ class Size(){
      * Initialize by multiplying with base units
      */
     constructor(widthBaseUnits:Double=0.0,heightBaseUnits:Double=0.0,depthBaseUnits:Double=0.0):this(){
-        this.width=widthBaseUnits*BaseUnits.ONE
-        this.height=heightBaseUnits*BaseUnits.ONE
-        this.depth=depthBaseUnits*BaseUnits.ONE
+        this.width=widthBaseUnits
+        this.height=heightBaseUnits
+        this.depth=depthBaseUnits
     }
 
     /**

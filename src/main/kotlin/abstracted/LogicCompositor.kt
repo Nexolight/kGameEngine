@@ -150,6 +150,16 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
                 for(collider in fieldSnapshot.entities){
                     if(collider is OrthogonCollider){
                         //TODO: OrthogonCollider implementation
+                        for(colliderBlock in collider.getColliderBlocks()){
+                            if(entity.intersectsRigidBody(colliderBlock)){
+                                //igLogI("COLLISION")
+                                ah.notify(Notification(
+                                        this,
+                                        NotificationType.COLLISION,
+                                        Collision(collider,entity)
+                                ))
+                            }
+                        }
                     }else if(collider is PositionalCollider){
                         for(colliderPos in collider.getColliderPositions()){
                             if(entity.intersectsRigidBody(colliderPos)){

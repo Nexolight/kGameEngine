@@ -5,6 +5,7 @@ import abstracted.entity.MovingEntity
 import abstracted.ui.`if`.ASCIISupport
 import games.snake.SnakeDefaultParams
 import models.*
+import physics.`if`.OrthogonCollider
 import physics.`if`.PositionalCollider
 import java.util.*
 
@@ -100,7 +101,7 @@ class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider {
         if(body.first().pos.x == pos.x && body.first().pos.y == pos.y){
             return SnakeDefaultParams.asciiHEAD
         }else if(body.last().pos == pos){
-            when(rota.xAxis){
+            when(rota.zAxis){
                 0.0,-0.0 -> return SnakeDefaultParams.asciiTailMvUp
                 90.0,-270.0 -> return SnakeDefaultParams.asciiTailMvRight
                 180.0,-180.0 -> return SnakeDefaultParams.asciiTailMvDown
@@ -122,6 +123,11 @@ class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider {
          */
         return Arrays.asList(body.get(0).pos)
     }
+
+    /*
+    override fun getColliderBlocks(): List<AdvancedQube> {
+        return Arrays.asList(body.get(0))
+    }*/
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

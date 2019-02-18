@@ -5,6 +5,7 @@ import abstracted.ui.`if`.ASCIISupport
 import models.*
 import physics.`if`.RigidBody
 import java.util.*
+import kotlin.math.abs
 
 /**
  * Represents a wall
@@ -47,6 +48,73 @@ class WallEntity: StaticEntity, ASCIISupport, RigidBody {
         }
         if(inX && inY){
             return true
+        }
+        return false
+    }
+
+    override fun intersectsRigidBody(qQube: AdvancedQube): Boolean {
+        return false//TODO:fix that
+        val qFrontPrX:Double = qQube.size.width//*Math.cos(qQube.rota.yAxis)
+        val qFrontPrY:Double = qQube.size.height//*Math.cos(qQube.rota.xAxis)
+        val qTopPrX:Double = qQube.size.width//*Math.cos(qQube.rota.zAxis)
+        val qTopPrZ:Double = qQube.size.depth//*Math.cos(qQube.rota.xAxis)
+        val qLeftPrY:Double = qQube.size.height//*Math.cos(qQube.rota.zAxis)
+        val qLeftPrZ:Double = qQube.size.depth//*Math.cos(qQube.rota.yAxis)
+        val qPivot = Position(
+                (qQube.size.width)/2+qQube.pos.x,
+                (qQube.size.height)/2+qQube.pos.y,
+                (qQube.size.depth)/2+qQube.pos.z)
+
+        for(myQube:AdvancedQube in occupies){
+            val mqFrontPrX:Double = myQube.size.width//*Math.cos(myQube.rota.yAxis)
+            val mqFrontPrY:Double = myQube.size.height//*Math.cos(myQube.rota.xAxis)
+            val mqTopPrX:Double = myQube.size.width//*Math.cos(myQube.rota.zAxis)
+            val mqTopPrZ:Double = myQube.size.depth//*Math.cos(myQube.rota.xAxis)
+            val mqLeftPrY:Double = myQube.size.height//*Math.cos(myQube.rota.zAxis)
+            val mqLeftPrZ:Double = myQube.size.depth//*Math.cos(myQube.rota.yAxis)
+            val mqPivot = Position(
+                    (myQube.size.width)/2+myQube.pos.x,
+                    (myQube.size.height)/2+myQube.pos.y,
+                    (myQube.size.depth)/2+myQube.pos.z)
+            var inTop = false
+            var inFront = false
+            var inLeft = false
+
+
+            val pXAvg:Double=(qPivot.x+mqPivot.x)/2
+            val pYAvg:Double=(qPivot.y+mqPivot.y)/2
+            val pZAvg:Double=(qPivot.z+mqPivot.z)/2
+
+            /**
+             * Get the center between 2 pivots, make that
+             * positive, and see if it is bigger than the
+             * center to surface distance for the projection
+             */
+            if(
+                    (abs(pXAvg) - qFrontPrX/2 <= 0|| abs(pXAvg) - mqFrontPrX/2 <= 0) &&
+                    (abs(pYAvg) - qFrontPrY/2 <= 0|| abs(pYAvg) - mqFrontPrY/2 <= 0)
+            ){
+                inFront=true
+            }
+
+            if(
+                    (abs(pXAvg) - qTopPrX/2 <= 0|| abs(pXAvg) - mqTopPrX/2 <= 0) &&
+                    (abs(pZAvg) - qTopPrZ/2 <= 0|| abs(pZAvg) - mqTopPrZ/2 <= 0)
+            ){
+                inTop=true
+            }
+
+            if(
+                    (abs(pYAvg) - qLeftPrY/2 <=0|| abs(pYAvg) - mqLeftPrY/2 <= 0) &&
+                    (abs(pZAvg) - qLeftPrZ/2 <=0|| abs(pZAvg) - mqLeftPrZ/2 <= 0)
+            ){
+                inLeft=true
+            }
+
+            if(inFront){
+                return true
+            }
+
         }
         return false
     }

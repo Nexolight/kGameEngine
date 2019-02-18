@@ -92,25 +92,25 @@ class SnakeGameLogic : LogicCompositor{
         field.entities.add(
             WallEntity(
                     Position(0,0,0),
-                    Size(SnakeDefaultParams.mapwidth,1,0),
+                    Size(SnakeDefaultParams.mapwidth,1,1),
                     Rotation(0.0,0.0,0.0))
         )
         field.entities.add(
             WallEntity(
                     Position(0,SnakeDefaultParams.mapheight-1,0),
-                    Size(SnakeDefaultParams.mapwidth,1,0),
+                    Size(SnakeDefaultParams.mapwidth,1,1),
                     Rotation(0.0,0.0,0.0))
         )
         field.entities.add(
             WallEntity(
                     Position(0,1,0),
-                    Size(1,SnakeDefaultParams.mapheight-2,0),
+                    Size(1,SnakeDefaultParams.mapheight-2,1),
                     Rotation(0.0,0.0,0.0))
         )
         field.entities.add(
             WallEntity(
                     Position(SnakeDefaultParams.mapwidth-1,1,0),
-                    Size(1,SnakeDefaultParams.mapheight-2,0),
+                    Size(1,SnakeDefaultParams.mapheight-2,1),
                     Rotation(0.0,0.0,0.0))
         )
     }

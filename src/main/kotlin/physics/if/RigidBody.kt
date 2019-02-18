@@ -1,5 +1,6 @@
 package physics.`if`
 
+import models.AdvancedQube
 import models.Position
 
 /**
@@ -19,4 +20,10 @@ interface RigidBody {
      * inside of a rigid body
      */
     fun intersectsRigidBody(pos: List<Position>): Boolean
+
+    /**
+     * Returns true of the given AdvancedQube touches
+     * the rigid body
+     */
+    fun intersectsRigidBody(qQube: AdvancedQube): Boolean
 }

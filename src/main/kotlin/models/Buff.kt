@@ -1,14 +1,27 @@
 package models
 
 /**
- * Enum that holds the available buffs
- * implemented by the Entity
+ * Buffs are a part of every entity and can be used to
+ * add certain properties to one
  */
-enum class Buff(){
-    SPEEDUP_M,
-    SPEEDUP_L,
-    SPEEDDOWN_M,
-    SPEEDDOWN_L,
-    METABOLISM_UP,
-    METABOLISM_DOWN
+class Buff(
+        val description:String = "",
+        val buffID:Int = 0,
+        val buffValue:Double = 0.0
+){
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Buff
+
+        if (buffID != other.buffID) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return buffID
+    }
 }

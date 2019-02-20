@@ -14,10 +14,17 @@ class SnakeDefaultParams {
         /**
          * delay in ms before the next logic tick
          * lower values increase the game speed
+         * @Deprecated
          */
         val tickSpeed:Long = 64
 
         /**
+         * Interval for buff spawns
+         */
+        val buffSpawnIntervall:Long = 20000
+
+        /**
+         *
          * By how much the player controlled snake
          * is feed at the beginning
          */

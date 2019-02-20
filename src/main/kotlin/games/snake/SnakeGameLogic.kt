@@ -1,25 +1,33 @@
 package games.snake
 
+import abstracted.Entity
 import abstracted.LogicCompositor
 import flow.ActionHandler
 import abstracted.entity.presets.Align
 import abstracted.entity.presets.TextEntity
+import abstracted.ui.`if`.ASCIISupport
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.util.Pool
 import games.snake.entitylogic.PlayerLogic
+import games.snake.entitylogic.entities.EdibleEntity
 import games.snake.entitylogic.entities.SnakeEntity
 import games.snake.entitylogic.entities.WallEntity
 import models.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class SnakeGameLogic : LogicCompositor{
 
     var firstAction:Boolean = true
     val welcome: TextEntity = TextEntity(Position(2, 10, 0))
     override var field: Field = Field(SnakeDefaultParams.mapwidth,SnakeDefaultParams.mapheight)
+    private val notifyQueue: ConcurrentLinkedQueue<Notification> = ConcurrentLinkedQueue<Notification>()
     var player:PlayerLogic? = null
+    var snakeFood:EdibleEntity? = null
+    var lastBuffSpawn:Long = System.currentTimeMillis()
 
     constructor(ah:ActionHandler,kryoPool: Pool<Kryo>):super(ah,kryoPool){
         ah.subscribeNotification(Notification(this,NotificationType.USERINPUT))
+        ah.subscribeNotification(Notification(this,NotificationType.COLLISION))
     }
 
     override fun requestAction() {
@@ -52,13 +60,23 @@ class SnakeGameLogic : LogicCompositor{
                 firstAction = false
             }
         }else{
-            //TODO: ingame menu speed option
+            //TODO: lower this, make the delay individual for entity logics
             super.addActionRequestDelay(SnakeDefaultParams.tickSpeed)
         }
+
+        /**
+         * Process some notifications in game thread
+         *
+        while(notifyQueue.size>0) {
+            val n: Notification = notifyQueue.poll()
+        }*/
 
 
         if(player != null){
             player?.actionRequest()
+
+            spawnEdible()
+
             /**
              * TODO:
              * at this point updates need to be finished
@@ -67,19 +85,64 @@ class SnakeGameLogic : LogicCompositor{
             while(player?.actionRequestPending() == true){
                 Thread.sleep(1)
             }
-        }
 
+        }
+    }
+
+    /**
+     * Will spawn food and buffs
+     * when none of these is on the field
+     */
+    fun spawnEdible(){
+        if(snakeFood == null || snakeFood?.wasEaten == true){
+            val food:EdibleEntity = EdibleEntity(getFreePos())
+            food.buffs.add(SnakeBuffs.food)
+            snakeFood = food
+            field.entities.add(snakeFood)
+        }
+        if(System.currentTimeMillis() >= SnakeDefaultParams.buffSpawnIntervall+lastBuffSpawn){
+            val buff:EdibleEntity = EdibleEntity(getFreePos())
+            val rand:Int = (0..3).shuffled().last()
+            when(rand){
+                0->buff.buffs.add(SnakeBuffs.speedupM)
+                1->buff.buffs.add(SnakeBuffs.speedupL)
+                2->buff.buffs.add(SnakeBuffs.speeddownM)
+                3->buff.buffs.add(SnakeBuffs.speeddownL)
+            }
+            lastBuffSpawn=System.currentTimeMillis()
+            field.entities.add(buff)
+        }
+    }
+
+    /**
+     * Returns a position that is not visually blocked.
+     * TODO: this is 2d only. should be 3d
+     */
+    fun getFreePos():Position{
+        val freePos:ArrayList<Position>  = ArrayList<Position>()
+        for(x in 1..(SnakeDefaultParams.mapwidth-2)){
+            for(y in 1..(SnakeDefaultParams.mapheight-2)){
+                freePos.add(Position(x,y,0))
+            }
+        }
+        for(e:Entity in field.entities){
+            if(e is ASCIISupport){
+                freePos.minus(e.occupies())
+            }
+        }
+        freePos.shuffle()
+        return freePos.get(0)
     }
 
     /**
      * Snake generation
      */
     fun genSnake(){
-        val newPlayer:PlayerLogic = PlayerLogic(
-                SnakeEntity(
-                        Position(SnakeDefaultParams.mapwidth/2,SnakeDefaultParams.mapheight/2,0),
-                        Rotation(0.0,0.0,0.0)
-        ), ah)
+        val newSnake = SnakeEntity(
+                Position(SnakeDefaultParams.mapwidth/2,SnakeDefaultParams.mapheight/2,0),
+                Rotation(0.0,0.0,0.0)
+        )
+        val newPlayer:PlayerLogic = PlayerLogic(field, newSnake, ah)
         field.entities.add(newPlayer.snake)
         newPlayer.start()
         player = newPlayer
@@ -116,10 +179,11 @@ class SnakeGameLogic : LogicCompositor{
     }
 
     override fun onLCNotify(n: Notification) {
-        //DEBUG only so far
-        if(n.type == NotificationType.USERINPUT){
+        if(n.type == NotificationType.USERINPUT) {
             igLogI("User input: ${n.chr}")
             return
+        }else{//outsource
+            notifyQueue.add(n)
         }
     }
 

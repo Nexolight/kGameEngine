@@ -10,9 +10,9 @@ import java.util.*
  * objects inside a map
  */
 abstract class Entity{
-    public val position:Position
-    protected val rotation:Rotation
-    protected val buffs: Deque<Buff> = LinkedList<Buff>()
+    val position:Position
+    val rotation:Rotation
+    val buffs: Deque<Buff> = LinkedList<Buff>()
 
     constructor(position:Position = Position(0,0,0),
                 rotation:Rotation = Rotation(0.0,0.0,0.0)){

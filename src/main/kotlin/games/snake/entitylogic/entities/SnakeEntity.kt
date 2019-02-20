@@ -20,7 +20,7 @@ class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider {
      * The first entry will always be the head at this entities
      * position
      */
-    private val body:ArrayList<AdvancedQube> = ArrayList<AdvancedQube>()
+    val body:ArrayList<AdvancedQube> = ArrayList<AdvancedQube>()
     private var nextMoveEnlarge:Boolean = false
     private val uuid:String = UUID.randomUUID().toString()
 

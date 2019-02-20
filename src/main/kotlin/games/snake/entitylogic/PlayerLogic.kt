@@ -4,7 +4,9 @@ import abstracted.Entity
 import abstracted.logic.EntityLogic
 import flow.ActionHandler
 import flow.NotifyThread
+import games.snake.SnakeBuffs
 import games.snake.SnakeDefaultParams
+import games.snake.entitylogic.entities.EdibleEntity
 import games.snake.entitylogic.entities.SnakeEntity
 import games.snake.entitylogic.entities.WallEntity
 import models.*
@@ -15,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * The player logic
  * Applies user inputs to the SnakeEntity
  */
-class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
+class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
 
     var kill:Boolean = false
     var moveTo:Char = SnakeDefaultParams.ctrlLEFT
@@ -188,9 +190,10 @@ class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
                     teleport=true
                     ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Player teleport"))
                     //snake.feed()
+                }else if(n.collision.collidingDst is EdibleEntity){
+                    val edible:EdibleEntity = n.collision.collidingDst
+                    applyEdible(edible)
                 }
-
-                //TODO: food
 
                 return
             }
@@ -201,6 +204,27 @@ class PlayerLogic(var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
                 kill = true
                 return
             }
+        }
+    }
+
+    /**
+     * The snake just ate something
+     * let's apply the buffs and remove that piece
+     * from the field
+     */
+    fun applyEdible(edible:EdibleEntity){
+        for(buff:Buff in edible.buffs){
+            when(buff){
+                SnakeBuffs.food -> snake.feed()
+            }
+        }
+        for(fE:Entity in field.entities){
+            if(fE is EdibleEntity && fE.equals(edible)){
+                fE.wasEaten=true
+            }
+        }
+        if(field.entities.contains(edible)){//might be artificial
+            field.entities.remove(edible)
         }
     }
 

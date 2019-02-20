@@ -1,32 +1,25 @@
 package abstracted
 
-import abstracted.entity.presets.TextEntity
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
-import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.ListeningExecutorService
 import com.google.common.util.concurrent.MoreExecutors
 import flow.ActionHandler
 import flow.NotifyThread
-import games.snake.entitylogic.entities.SnakeEntity
-import games.snake.entitylogic.entities.WallEntity
 import models.*
 import mu.KLogger
 import mu.KotlinLogging
+import physics.Collision
 import physics.`if`.*
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.OutputStream
-import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.ConcurrentLinkedDeque
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.collections.ArrayList
 import kotlin.concurrent.read
 
 abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThread(){
@@ -156,7 +149,7 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
                                 ah.notify(Notification(
                                         this,
                                         NotificationType.COLLISION,
-                                        Collision(collider,entity)
+                                        Collision(collider, entity)
                                 ))
                             }
                         }
@@ -167,7 +160,7 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
                                 ah.notify(Notification(
                                         this,
                                         NotificationType.COLLISION,
-                                        Collision(collider,entity)
+                                        Collision(collider, entity)
                                 ))
                             }
                         }

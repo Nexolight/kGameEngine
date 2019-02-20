@@ -26,4 +26,20 @@ interface RigidBody {
      * the rigid body
      */
     fun intersectsRigidBody(qQube: AdvancedQube): Boolean
+
+    /**
+     * Collision Detection is done Async
+     * in this game engine due to performance
+     * reasons.
+     *
+     * Meaning it is calculated on a serialized
+     * snapshot after all Action Requests are done.
+     *
+     * In order to detect if the collision is
+     * relevant the equals method must be overriden
+     * to return true on the realtime object and the
+     * serialized one.
+     */
+    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
 }

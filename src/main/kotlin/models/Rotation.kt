@@ -63,4 +63,24 @@ class Rotation(
     override fun toString():String{
         return "Rotation: x: $xAxis, y: $yAxis, z: $zAxis"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Rotation
+
+        if (xAxis != other.xAxis) return false
+        if (yAxis != other.yAxis) return false
+        if (zAxis != other.zAxis) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = xAxis.hashCode()
+        result = 31 * result + yAxis.hashCode()
+        result = 31 * result + zAxis.hashCode()
+        return result
+    }
 }

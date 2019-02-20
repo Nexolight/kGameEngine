@@ -1,10 +1,9 @@
 package models
 
-import abstracted.Entity
 import abstracted.LogicCompositor
 import abstracted.UICompositor
 import flow.NotifyThread
-import physics.`if`.Collision
+import physics.Collision
 
 
 enum class NotificationType{
@@ -28,7 +27,7 @@ class Notification(
         val n:Int,
         val lc:LogicCompositor?,
         val uic:UICompositor?,
-        val collision:Collision?){
+        val collision: Collision?){
 
     /**
      * Just notify without any value

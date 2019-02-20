@@ -90,4 +90,24 @@ class Size(){
     override fun toString():String{
         return "Size: width: $width, height: $height, depth: $depth"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Size
+
+        if (width != other.width) return false
+        if (height != other.height) return false
+        if (depth != other.depth) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = width.hashCode()
+        result = 31 * result + height.hashCode()
+        result = 31 * result + depth.hashCode()
+        return result
+    }
 }

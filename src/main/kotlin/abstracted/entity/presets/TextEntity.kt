@@ -14,7 +14,7 @@ enum class Align{
  * TODO: add 3d support
  *
  */
-class TextEntity : StaticEntity, ASCIISupport{
+open class TextEntity : StaticEntity, ASCIISupport{
 
     constructor():super(){}
     constructor(pos: Position, rotation:Rotation = Rotation(0.0,0.0,0.0)) : super(pos,rotation){}

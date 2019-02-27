@@ -6,6 +6,7 @@ import flow.ActionHandler
 import flow.NotifyThread
 import games.snake.SnakeBuffs
 import games.snake.SnakeDefaultParams
+import games.snake.SnakeGameSignals
 import games.snake.entitylogic.entities.EdibleEntity
 import games.snake.entitylogic.entities.SnakeEntity
 import games.snake.entitylogic.entities.WallEntity
@@ -214,8 +215,13 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
      */
     fun applyEdible(edible:EdibleEntity){
         for(buff:Buff in edible.buffs){
-            when(buff){
-                SnakeBuffs.food -> snake.feed()
+
+            if(buff == SnakeBuffs.food){
+                snake.feed()
+                ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.snakeEat, 1)))
+            }else{//SnakeBuffs.<buff>
+                //TODO: apply effective buff and notify
+                ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.newBuffValue, 1.0)))
             }
         }
         for(fE:Entity in field.entities){

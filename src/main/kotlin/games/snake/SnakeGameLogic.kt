@@ -5,6 +5,7 @@ import abstracted.LogicCompositor
 import flow.ActionHandler
 import abstracted.entity.presets.Align
 import abstracted.entity.presets.TextEntity
+import abstracted.entity.presets.TextPairEntity
 import abstracted.ui.`if`.ASCIISupport
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.util.Pool
@@ -12,8 +13,11 @@ import games.snake.entitylogic.PlayerLogic
 import games.snake.entitylogic.entities.EdibleEntity
 import games.snake.entitylogic.entities.SnakeEntity
 import games.snake.entitylogic.entities.WallEntity
+import games.snake.helper.RuntimeDispValD
+import games.snake.helper.RuntimeDispValI
 import models.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.math.roundToInt
 
 class SnakeGameLogic : LogicCompositor{
 
@@ -23,11 +27,38 @@ class SnakeGameLogic : LogicCompositor{
     private val notifyQueue: ConcurrentLinkedQueue<Notification> = ConcurrentLinkedQueue<Notification>()
     var player:PlayerLogic? = null
     var snakeFood:EdibleEntity? = null
+    var startTime:Long = System.currentTimeMillis()
+    var dispValues: TextPairEntity = TextPairEntity(
+            Position(SnakeDefaultParams.mapwidth+1,1,0),
+            Rotation(0.0,0.0,0.0),
+            20,1,'#'
+    )
+
+
+    /**
+     * Updated and displayed game values
+     */
+    val playtime:RuntimeDispValI = RuntimeDispValI(
+            0, "Playtime (s)", 0
+    )
+    var playerMultiplier: RuntimeDispValD = RuntimeDispValD(
+            1,"Speed multiplier:", 1.0
+    )
+    val playerFood:RuntimeDispValI = RuntimeDispValI(
+            2,"Food eaten: ",0
+    )
+    val playerPoints:RuntimeDispValI = RuntimeDispValI(
+            3,"Score:", 0
+    )
+
+
     var lastBuffSpawn:Long = System.currentTimeMillis()
 
     constructor(ah:ActionHandler,kryoPool: Pool<Kryo>):super(ah,kryoPool){
         ah.subscribeNotification(Notification(this,NotificationType.USERINPUT))
         ah.subscribeNotification(Notification(this,NotificationType.COLLISION))
+        ah.subscribeNotification(Notification(this,NotificationType.GAMESIGNAL))
+
     }
 
     override fun requestAction() {
@@ -57,6 +88,7 @@ class SnakeGameLogic : LogicCompositor{
             }else{
                 field.entities.remove(welcome)
                 genSnake()
+                field.entities.add(dispValues)
                 firstAction = false
             }
         }else{
@@ -66,16 +98,50 @@ class SnakeGameLogic : LogicCompositor{
 
         /**
          * Process some notifications in game thread
-         *
+         */
         while(notifyQueue.size>0) {
             val n: Notification = notifyQueue.poll()
-        }*/
+
+            /**
+             * Update displayed values.
+             * The individual logics will notfy us about the
+             * stuff we want to have displayed
+             */
+            if(n.type == NotificationType.GAMESIGNAL && n.pair != null){
+                when(n.pair.first){
+                    SnakeGameSignals.snakeEat ->{
+                        if(n.pair.second is Int){
+                            playerFood.value += n.pair.second
+                            playerPoints.value += (
+                                    SnakeDefaultParams.pointsPerFood * playerMultiplier.value
+                                    ).roundToInt()
+                        }
+                    }
+                    SnakeGameSignals.newBuffValue->{
+                        if(n.pair.second is Double){
+                            playerMultiplier.value=n.pair.second
+                        }
+                    }
+                }
+
+            }
+        }
+        val now:Long = System.currentTimeMillis()
+        if(now - startTime > 1000){
+            playtime.value = ((now-startTime)/1000).toInt()
+        }
 
 
         if(player != null){
-            player?.actionRequest()
+            player?.actionRequest()//ASYNC
 
             spawnEdible()
+
+            dispValues.setPair(playtime.row,playtime.name,playtime.value.toString())
+            dispValues.setPair(playerMultiplier.row,playerMultiplier.name,playerMultiplier.value.toString())
+            dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString())
+            dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString())
+            dispValues.updatePairs()
 
             /**
              * TODO:

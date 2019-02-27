@@ -24,11 +24,15 @@ class SnakeDefaultParams {
         val buffSpawnIntervall:Long = 20000
 
         /**
-         *
          * By how much the player controlled snake
          * is feed at the beginning
          */
         val initialFeed:Int = 6
+
+        /**
+         * Base increase in points per food piece
+         */
+        val pointsPerFood = 50
 
         /**
          * keyboard ontrols

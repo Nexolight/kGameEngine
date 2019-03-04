@@ -62,8 +62,8 @@ open class TextEntity : StaticEntity, ASCIISupport{
                 ++row
                 col = (super.position.x/ BaseUnits.ONE).toInt()
             }
-            ++row
-            col = (super.position.x/ BaseUnits.ONE).toInt()
+            //++row
+            //col = (super.position.x/ BaseUnits.ONE).toInt()
         }
     }
 

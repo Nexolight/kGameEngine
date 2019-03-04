@@ -9,7 +9,7 @@ class SnakeDefaultParams {
          * Welcome message and timer before start
          */
         val welcomeTimer:Int = 5;
-        val welcomeMsg:String = "Starting ksnake in:\n "
+        val welcomeMsg:String = "Starting ksnake in:\n \n "
 
         /**
          * delay in ms before the next logic tick

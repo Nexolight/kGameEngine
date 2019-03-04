@@ -29,9 +29,9 @@ class SnakeGameLogic : LogicCompositor{
     var snakeFood:EdibleEntity? = null
     var startTime:Long = System.currentTimeMillis()
     var dispValues: TextPairEntity = TextPairEntity(
-            Position(SnakeDefaultParams.mapwidth+1,1,0),
+            Position(SnakeDefaultParams.mapwidth+1,0,0),
             Rotation(0.0,0.0,0.0),
-            20,1,'#'
+            25,1,'#'
     )
 
 
@@ -82,7 +82,7 @@ class SnakeGameLogic : LogicCompositor{
             if(super.actionRequestTicks < SnakeDefaultParams.welcomeTimer){
                 super.addActionRequestDelay(1000)
                 welcome.updateText(
-                        "${SnakeDefaultParams.welcomeMsg}\n${5-super.actionRequestTicks}",
+                        "${SnakeDefaultParams.welcomeMsg}${5-super.actionRequestTicks}",
                         SnakeDefaultParams.mapwidth-4,
                         Align.CENTER)
             }else{

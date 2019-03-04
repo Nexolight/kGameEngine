@@ -8,8 +8,8 @@ import kotlin.math.abs
 
 
 /**
- * Extended text entity that can display value pairs on the field
- * in a separate box.
+ * Text entity supposed to display key/value pairs.
+ * Can be used for menus as well.
  */
 class TextPairEntity : StaticEntity, ASCIISupport {
 
@@ -71,7 +71,7 @@ class TextPairEntity : StaticEntity, ASCIISupport {
         var textCol:Int = 0
         var delta:Int = columns - pair.first.length - pair.second.length
 
-        if(tbBorder){
+        if(border != null){
             if(tbBorder){
                 constr = border.toString().repeat(columns)
             }else{

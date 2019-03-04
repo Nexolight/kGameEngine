@@ -60,10 +60,6 @@ class AsciiCompositor(ah:ActionHandler,kryoPool: Pool<Kryo>) : UICompositor(ah,k
         maxFieldWidht=(field.width/BaseUnits.ONE).toInt()
         maxFieldHeight=(field.height/BaseUnits.ONE).toInt()
 
-        //clear the console, it would be a mess otherwise
-        cr.clearScreen()
-        cr.flush()
-
         //simplified drawField width/height
         //val tHeight:Int = (field.height/BaseUnits.ONE).toInt()
         //val tWidth:Int = (field.width/BaseUnits.ONE).toInt()
@@ -99,6 +95,9 @@ class AsciiCompositor(ah:ActionHandler,kryoPool: Pool<Kryo>) : UICompositor(ah,k
                 }
             }
         }
+        //clear the console, it would be a mess otherwise
+        cr.clearScreen()
+        cr.flush()
         System.out.print(draw)
     }
 

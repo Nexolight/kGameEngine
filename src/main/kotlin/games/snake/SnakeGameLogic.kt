@@ -34,7 +34,7 @@ class SnakeGameLogic : LogicCompositor{
     var dispValues: TextPairEntity = TextPairEntity(
             Position(SnakeDefaultParams.mapwidth+1,0,0),
             Rotation(0.0,0.0,0.0),
-            30,1,null
+            30,1,'+'
     )
     var tickSpeed:Double = SnakeDefaultParams.tickSpeed.toDouble()
 

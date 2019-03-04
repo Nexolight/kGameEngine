@@ -219,9 +219,14 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
             if(buff == SnakeBuffs.food){
                 snake.feed()
                 ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.snakeEat, 1)))
-            }else{//SnakeBuffs.<buff>
-                //TODO: apply effective buff and notify
-                ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.newBuffValue, 1.0)))
+            }else if(buff == SnakeBuffs.speeddownM){
+                ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.newBuffValue, SnakeBuffs.speeddownM.buffValue)))
+            }else if(buff == SnakeBuffs.speeddownL){
+                ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.newBuffValue, SnakeBuffs.speeddownL.buffValue)))
+            }else if(buff == SnakeBuffs.speedupM){
+                ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.newBuffValue, SnakeBuffs.speedupM.buffValue)))
+            }else if(buff == SnakeBuffs.speedupL){
+                ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.newBuffValue, SnakeBuffs.speedupL.buffValue)))
             }
         }
         for(fE:Entity in field.entities){

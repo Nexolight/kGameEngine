@@ -52,7 +52,7 @@ class TextPairEntity: TextEntity {
      */
     fun updatePairs(){
         var str:String = ""
-        var emptyLine:String = "\n "
+        var emptyLine:String = "\n"
 
         if(border != null){
             emptyLine=border.toString()+" ".repeat(borderPadding*2)+" ".repeat(columns)+border.toString()+"\n"
@@ -63,7 +63,7 @@ class TextPairEntity: TextEntity {
         for (row in 0 .. TreeSet(pairs.keys).last()) {
             val pair:TextPair? = pairs.get(row)
             if(pair == null){
-                str+="\n "
+                str+="\n"
                 continue
             }
             

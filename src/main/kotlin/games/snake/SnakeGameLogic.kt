@@ -9,6 +9,7 @@ import abstracted.entity.presets.TextPairEntity
 import abstracted.ui.`if`.ASCIISupport
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.util.Pool
+import com.sun.org.apache.xpath.internal.operations.Bool
 import games.snake.entitylogic.PlayerLogic
 import games.snake.entitylogic.entities.EdibleEntity
 import games.snake.entitylogic.entities.SnakeEntity
@@ -16,6 +17,7 @@ import games.snake.entitylogic.entities.WallEntity
 import games.snake.helper.RuntimeDispValD
 import games.snake.helper.RuntimeDispValI
 import models.*
+import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.roundToInt
 
@@ -31,8 +33,9 @@ class SnakeGameLogic : LogicCompositor{
     var dispValues: TextPairEntity = TextPairEntity(
             Position(SnakeDefaultParams.mapwidth+1,0,0),
             Rotation(0.0,0.0,0.0),
-            25,1,'#'
+            25,0,null
     )
+    var tickSpeed:Double = SnakeDefaultParams.tickSpeed.toDouble()
 
 
     /**
@@ -62,7 +65,9 @@ class SnakeGameLogic : LogicCompositor{
     }
 
     override fun requestAction() {
+        val now:Long = System.currentTimeMillis()
         val elements = field.entities.size
+        var dispValuesUpdated:Boolean = false
 
         //TODO: ingame menu debug log options
         if(super.actionRequestTicks % 6 == 0.toLong()){
@@ -88,12 +93,23 @@ class SnakeGameLogic : LogicCompositor{
             }else{
                 field.entities.remove(welcome)
                 genSnake()
-                field.entities.add(dispValues)
+                initDispValues()
                 firstAction = false
             }
         }else{
-            //TODO: lower this, make the delay individual for entity logics
-            super.addActionRequestDelay(SnakeDefaultParams.tickSpeed)
+            super.addActionRequestDelay(tickSpeed.toLong())
+        }
+
+        if(now - startTime > 1000){
+            playtime.value = ((now-startTime)/1000).toInt()
+            dispValuesUpdated=true
+            dispValues.setPair(playtime.row,playtime.name,playtime.value.toString())
+        }
+
+
+        if(player != null){
+            player?.actionRequest()//ASYNC
+            spawnEdible()
         }
 
         /**
@@ -116,44 +132,51 @@ class SnakeGameLogic : LogicCompositor{
                                     SnakeDefaultParams.pointsPerFood * playerMultiplier.value
                                     ).roundToInt()
                         }
+                        dispValuesUpdated=true
+                        dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString())
+                        dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString())
                     }
                     SnakeGameSignals.newBuffValue->{
                         if(n.pair.second is Double){
-                            playerMultiplier.value=n.pair.second
+                            playerMultiplier.value=playerMultiplier.value*n.pair.second
+                            tickSpeed=tickSpeed*(1/n.pair.second)
                         }
+                        dispValuesUpdated=true
+                        dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString())
                     }
                 }
 
             }
         }
-        val now:Long = System.currentTimeMillis()
-        if(now - startTime > 1000){
-            playtime.value = ((now-startTime)/1000).toInt()
-        }
 
-
-        if(player != null){
-            player?.actionRequest()//ASYNC
-
-            spawnEdible()
-
-            dispValues.setPair(playtime.row,playtime.name,playtime.value.toString())
-            dispValues.setPair(playerMultiplier.row,playerMultiplier.name,playerMultiplier.value.toString())
-            dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString())
-            dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString())
+        if(dispValuesUpdated==true){
             dispValues.updatePairs()
-
-            /**
-             * TODO:
-             * at this point updates need to be finished
-             * otherwise it will mess up the serialization
-             */
-            while(player?.actionRequestPending() == true){
-                Thread.sleep(1)
-            }
-
         }
+
+        /**
+         * TODO:
+         * at this point updates need to be finished
+         * otherwise it will mess up the serialization
+         */
+        while(player != null && player?.actionRequestPending() == true){
+            Thread.sleep(1)
+        }
+
     }
+
+    /**
+     * Initially called to display all values so that the order isnt messed up
+     * by individual activation
+     */
+    fun initDispValues(){
+        field.entities.add(dispValues)
+        dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString())
+        dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString())
+        dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString())
+        dispValues.setPair(playtime.row,playtime.name,playtime.value.toString())
+        dispValues.updatePairs()
+    }
+
 
     /**
      * Will spawn food and buffs

@@ -1,7 +1,8 @@
 package abstracted.entity.presets
 
-import models.Position
-import models.Rotation
+import abstracted.entity.StaticEntity
+import abstracted.ui.`if`.ASCIISupport
+import models.*
 import java.util.TreeSet
 import kotlin.math.abs
 
@@ -10,13 +11,17 @@ import kotlin.math.abs
  * Extended text entity that can display value pairs on the field
  * in a separate box.
  */
-class TextPairEntity: TextEntity {
+class TextPairEntity : StaticEntity, ASCIISupport {
 
     private var pairs:HashMap<Int,TextPair> = HashMap<Int,TextPair>()
     private var columns:Int = 20
     private var border:Char? = null
     private var borderPadding = 1
 
+    private var occupies:MutableList<AdvancedQube> = ArrayList<AdvancedQube>()
+    private var chars:HashMap<Position,Char> = HashMap<Position,Char>()
+    private var offcol:Int = (super.position.x/ BaseUnits.ONE).toInt()
+    private var offrow:Int = (super.position.y/ BaseUnits.ONE).toInt()
 
     constructor():super(){}
     constructor(pos: Position,
@@ -29,6 +34,20 @@ class TextPairEntity: TextEntity {
         if(border != null){
             this.columns-=2+borderPadding*2
         }
+    }
+
+
+    override fun getOccupyRepresentation(pos: Position, rota: Rotation): Char {
+        val chr:Char? = chars.get(pos)
+
+        if(chr != null){
+            return chr
+        }
+        return ' '
+    }
+
+    override fun occupies(): List<AdvancedQube> {
+        return occupies
     }
 
     /**
@@ -47,10 +66,74 @@ class TextPairEntity: TextEntity {
         if(update){updatePairs()}
     }
 
+    fun updatePairsSub(pair:TextPair,offcol:Int,offrow:Int,textRow:Int,tbBorder:Boolean=false){
+        var constr:String=""
+        var textCol:Int = 0
+        var delta:Int = columns - pair.first.length - pair.second.length
+
+        if(tbBorder){
+            if(tbBorder){
+                constr = border.toString().repeat(columns)
+            }else{
+                delta-=borderPadding*2+2
+                constr = buildStr(border.toString()+" ".repeat(borderPadding)+pair.first,pair.second+" ".repeat(borderPadding)+border.toString(),delta)
+            }
+        }else{
+            constr = buildStr(pair.first,pair.second,delta)
+        }
+
+
+        val effectiveRow=offrow+textRow
+        for(chr:Char in constr){
+            val effectiveCol=offcol+textCol
+            val pos:Position = Position(effectiveCol,effectiveRow,0)
+            occupies.add(AdvancedQube(pos,
+                    Size(1,1,0).makeFlat(),
+                    Rotation(0.0,0.0,0.0)))
+            chars.put(pos,chr)
+            textCol++
+        }
+    }
+
     /**
      * Updates the character in the entity after the pair list was changed
      */
     fun updatePairs(){
+        occupies.clear()
+        chars.clear()
+
+        offcol = (super.position.x/ BaseUnits.ONE).toInt()
+        offrow = (super.position.y/ BaseUnits.ONE).toInt()
+        var textRow:Int = 0
+        if(border != null){
+            updatePairsSub(TextPair(border.toString().repeat(columns)),offcol,offrow,textRow,true)
+            textRow++
+            for(padding in 0 until borderPadding){
+                updatePairsSub(TextPair("",""),offcol,offrow,textRow)
+                textRow++
+            }
+        }
+
+        var indexRow:Int = 0
+        for (pairRow in 0 .. TreeSet(pairs.keys).last()) {
+            var pair:TextPair? = pairs.get(pairRow)
+            if(pair == null){
+                pair = TextPair("","")
+            }
+            updatePairsSub(pair,offcol,offrow,textRow+pairRow)
+            indexRow++
+        }
+        textRow+=indexRow
+        if(border != null){
+            for(padding in 0 until borderPadding){
+                updatePairsSub(TextPair("",""),offcol,offrow,textRow)
+                textRow++
+            }
+            updatePairsSub(TextPair(border.toString().repeat(columns)),offcol,offrow,textRow,true)
+            textRow++
+        }
+
+        /*
         var str:String = ""
         var emptyLine:String = "\n"
 
@@ -82,14 +165,14 @@ class TextPairEntity: TextEntity {
             str+=border.toString().repeat(columns+borderPadding*2+2)+"\n"
         }
 
-        super.updateText(str,columns,Align.LEFT)
+        super.updateText(str,columns,Align.LEFT)*/
     }
 
 
     /**
      * Cutoff the string if the delta is negative,
      */
-    private fun limitStr(inStr1:String,inStr2:String,delta:Int):String{
+    private fun buildStr(inStr1:String,inStr2:String,delta:Int):String{
         if(delta >= 0){
             return inStr1+" ".repeat(delta)+inStr2
         }

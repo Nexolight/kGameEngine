@@ -69,6 +69,7 @@ class AsciiCompositor(ah:ActionHandler,kryoPool: Pool<Kryo>) : UICompositor(ah,k
         //val tWidth:Int = (field.width/BaseUnits.ONE).toInt()
 
         //iterate trough everything on the drawField
+        var draw:String=""
         for(e:Entity in field.entities){
 
             if(e !is ASCIISupport){
@@ -92,31 +93,36 @@ class AsciiCompositor(ah:ActionHandler,kryoPool: Pool<Kryo>) : UICompositor(ah,k
                     for(x in 1..bWidth){
                         val y:Int = offsetY+y
                         val x:Int = offsetX+x
-                        System.out.print(String.format("%c[%d;%df",ESC,y+WINDOW_GAME_Y_OFFSET+1,x+1))//console cursor position
-                        System.out.print(e.getOccupyRepresentation(block.pos,block.rota))//ASCII character
+                        draw+=String.format("%c[%d;%df",ESC,y+WINDOW_GAME_Y_OFFSET+1,x+1)//console cursor position
+                        draw+=e.getOccupyRepresentation(block.pos,block.rota)//ASCII character
                     }
                 }
             }
         }
+        System.out.print(draw)
     }
 
     override fun drawLog(logWindow: CopyOnWriteArrayList<String>) {
         var y:Int = WINDOW_LOG_Y_OFFSET+maxFieldHeight
-        System.out.print(String.format("%c[%d;%df",ESC, y,WINDOW_LOG_X_OFFSET+1))//console cursor position
-        System.out.print("[LOGS]")
-        System.out.print(String.format("%c[%d;%df",ESC, y+1,WINDOW_LOG_X_OFFSET+1))//console cursor position
-        System.out.print("-".repeat(maxFieldWidht))
+        var draw:String=""
+        draw+=String.format("%c[%d;%df",ESC, y,WINDOW_LOG_X_OFFSET+1)//console cursor position
+        draw+="[LOGS]"
+        draw+=String.format("%c[%d;%df",ESC, y+1,WINDOW_LOG_X_OFFSET+1)//console cursor position
+        draw+="-".repeat(maxFieldWidht)
 
         for(ll in logWindow){
-            System.out.print(String.format("%c[%d;%df",ESC, y+2,WINDOW_LOG_X_OFFSET+1))//console cursor position
-            System.out.print(ll)
+            draw+=String.format("%c[%d;%df",ESC, y+2,WINDOW_LOG_X_OFFSET+1)//console cursor position
+            draw+=ll
             ++y
         }
+        System.out.print(draw)
     }
 
     override fun drawFPS(fps: Long) {
-        System.out.print(String.format("%c[%d;%df",ESC, WINDOW_INFO_Y_OFFSET+1,WINDOW_INFO_FPS_X_OFFSET+1))//console cursor position
-        System.out.print("fps: $fps")
+        var draw:String = ""
+        draw+=String.format("%c[%d;%df",ESC, WINDOW_INFO_Y_OFFSET+1,WINDOW_INFO_FPS_X_OFFSET+1)//console cursor position
+        draw+="fps: $fps"
+        System.out.print(draw)
     }
 
     override fun highScore(highscore: HighScore) {

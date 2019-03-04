@@ -4,6 +4,7 @@ import abstracted.Entity
 import abstracted.LogicCompositor
 import flow.ActionHandler
 import abstracted.entity.presets.Align
+import abstracted.entity.presets.BGEntity
 import abstracted.entity.presets.TextEntity
 import abstracted.entity.presets.TextPairEntity
 import abstracted.ui.`if`.ASCIISupport
@@ -33,7 +34,7 @@ class SnakeGameLogic : LogicCompositor{
     var dispValues: TextPairEntity = TextPairEntity(
             Position(SnakeDefaultParams.mapwidth+1,0,0),
             Rotation(0.0,0.0,0.0),
-            25,0,null
+            30,1,null
     )
     var tickSpeed:Double = SnakeDefaultParams.tickSpeed.toDouble()
 
@@ -103,7 +104,7 @@ class SnakeGameLogic : LogicCompositor{
         if(now - startTime > 1000){
             playtime.value = ((now-startTime)/1000).toInt()
             dispValuesUpdated=true
-            dispValues.setPair(playtime.row,playtime.name,playtime.value.toString())
+            dispValues.setPair(playtime.row,playtime.name,playtime.value.toString(),false)
         }
 
 
@@ -133,8 +134,8 @@ class SnakeGameLogic : LogicCompositor{
                                     ).roundToInt()
                         }
                         dispValuesUpdated=true
-                        dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString())
-                        dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString())
+                        dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString(),false)
+                        dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString(),false)
                     }
                     SnakeGameSignals.newBuffValue->{
                         if(n.pair.second is Double){
@@ -142,7 +143,7 @@ class SnakeGameLogic : LogicCompositor{
                             tickSpeed=tickSpeed*(1/n.pair.second)
                         }
                         dispValuesUpdated=true
-                        dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString())
+                        dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString(),false)
                     }
                 }
 
@@ -170,10 +171,10 @@ class SnakeGameLogic : LogicCompositor{
      */
     fun initDispValues(){
         field.entities.add(dispValues)
-        dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString())
-        dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString())
-        dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString())
-        dispValues.setPair(playtime.row,playtime.name,playtime.value.toString())
+        dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString(),false)
+        dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString(),false)
+        dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString(),false)
+        dispValues.setPair(playtime.row,playtime.name,playtime.value.toString(),false)
         dispValues.updatePairs()
     }
 

@@ -11,3 +11,9 @@ class RuntimeDispValI(row:Int, name:String,value:Int){
     var name:String = name
     var value:Int = value
 }
+
+class RuntimeDispValS(row:Int, name:String,value:String){
+    var row:Int = row
+    var name:String = name
+    var value:String = value
+}

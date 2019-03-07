@@ -19,6 +19,19 @@ class CollisionHelpers {
     companion object {
 
         /**
+         * Same as the other function except that this takes a list of positions
+         * to check.
+         */
+        fun intersectsPosAQ(pos: List<Position>,myQubes:List<AdvancedQube> ): Boolean {
+            for(p in pos){
+                if(intersectsPosAQ(p,myQubes)){
+                    return true
+                }
+            }
+            return false
+        }
+
+        /**
          * Supposed to return true if a given position intersects with
          * one in a given list
          *

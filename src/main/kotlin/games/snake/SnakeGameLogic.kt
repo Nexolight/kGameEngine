@@ -17,6 +17,7 @@ import games.snake.entitylogic.entities.SnakeEntity
 import games.snake.entitylogic.entities.WallEntity
 import games.snake.helper.RuntimeDispValD
 import games.snake.helper.RuntimeDispValI
+import games.snake.helper.RuntimeDispValS
 import models.*
 import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -26,6 +27,7 @@ class SnakeGameLogic : LogicCompositor{
 
     var firstAction:Boolean = true
     val welcome: TextEntity = TextEntity(Position(2, 10, 0))
+    val gameOver: TextEntity = TextEntity(Position(2, 10, 0))
     override var field: Field = Field(SnakeDefaultParams.mapwidth,SnakeDefaultParams.mapheight)
     private val notifyQueue: ConcurrentLinkedQueue<Notification> = ConcurrentLinkedQueue<Notification>()
     var player:PlayerLogic? = null
@@ -37,7 +39,8 @@ class SnakeGameLogic : LogicCompositor{
             30,1,'+'
     )
     var tickSpeed:Double = SnakeDefaultParams.tickSpeed.toDouble()
-
+    var gameOverCheck:Boolean = false
+    var gameOverTime:Long = 0L
 
     /**
      * Updated and displayed game values
@@ -53,6 +56,9 @@ class SnakeGameLogic : LogicCompositor{
     )
     val playerPoints:RuntimeDispValI = RuntimeDispValI(
             3,"Score:", 0
+    )
+    val playerState:RuntimeDispValS = RuntimeDispValS(
+            4,"Snake is:", "ALIVE"
     )
 
 
@@ -98,23 +104,60 @@ class SnakeGameLogic : LogicCompositor{
                 firstAction = false
             }
         }else{
+            //switch to normal tick speed
             super.addActionRequestDelay(tickSpeed.toLong())
         }
 
-        if(now - startTime > 1000){
+
+        /**
+         * GameOver sequcence
+         */
+        if(gameOverTime != 0L){
+            if(gameOverCheck){
+                gameOverCheck=false
+                gameOver.updateText(
+                        "${SnakeDefaultParams.gameOverMsg}${SnakeDefaultParams.gameOverTimer}",
+                        SnakeDefaultParams.mapwidth-4,
+                        Align.CENTER)
+                field.entities.add(gameOver)
+                despawnEdibles()
+                player?.kill=true
+                field.entities.remove(player?.snake)
+                player = null
+                super.addActionRequestDelay(1000)//override
+            }
+            val tDelta:Long = System.currentTimeMillis() - gameOverTime
+            if(tDelta >= 5000){
+                field.entities.remove(gameOver)
+                gameOverTime=0L
+            }else{
+                gameOver.updateText(
+                        "${SnakeDefaultParams.gameOverMsg}${SnakeDefaultParams.gameOverTimer - (tDelta / 1000).toInt()}",
+                        SnakeDefaultParams.mapwidth-4,
+                        Align.CENTER)
+                super.addActionRequestDelay(1000)//override
+            }
+        }
+
+        /**
+        * Playtime update. only do it as long as the player is active
+         */
+        if(player != null && now - startTime > 1000){
             playtime.value = ((now-startTime)/1000).toInt()
             dispValuesUpdated=true
             dispValues.setPair(playtime.row,playtime.name,playtime.value.toString(),false)
         }
 
-
+        /**
+         * Game related async/sub functions
+         */
         if(player != null){
             player?.actionRequest()//ASYNC
-            spawnEdible()
+            spawnEdible()//SYNC
         }
 
         /**
-         * Process some notifications in game thread
+         * Process the notifications in game thread (SYNC)
          */
         while(notifyQueue.size>0) {
             val n: Notification = notifyQueue.poll()
@@ -145,11 +188,20 @@ class SnakeGameLogic : LogicCompositor{
                         dispValuesUpdated=true
                         dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString(),false)
                     }
+                    SnakeGameSignals.playerDeath->{
+                        dispValuesUpdated=true
+                        gameOverCheck=true
+                        gameOverTime=System.currentTimeMillis()
+                        dispValues.setPair(playerState.row,playerState.name,"DEAD",false)
+                    }
                 }
 
             }
         }
 
+        /**
+         * Update the displayed values at once if changed
+         */
         if(dispValuesUpdated==true){
             dispValues.updatePairs()
         }
@@ -166,8 +218,7 @@ class SnakeGameLogic : LogicCompositor{
     }
 
     /**
-     * Initially called to display all values so that the order isnt messed up
-     * by individual activation
+     * Initially add the display value pairs
      */
     fun initDispValues(){
         field.entities.add(dispValues)
@@ -175,13 +226,26 @@ class SnakeGameLogic : LogicCompositor{
         dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString(),false)
         dispValues.setPair(playerMultiplier.row, playerMultiplier.name, DecimalFormat("#.###").format(playerMultiplier.value).toString(),false)
         dispValues.setPair(playtime.row,playtime.name,playtime.value.toString(),false)
+        dispValues.setPair(playerState.row,playerState.name,playerState.value,false)
         dispValues.updatePairs()
     }
 
 
     /**
+     * Removes all edibles from the game field
+     */
+    fun despawnEdibles(){
+        val edibles:ArrayList<EdibleEntity> = ArrayList<EdibleEntity>()
+        for(e:Entity in field.entities){
+            if(e is EdibleEntity){
+                edibles.add(e)
+            }
+        }
+        field.entities.removeAll(edibles)
+    }
+
+    /**
      * Will spawn food and buffs
-     * when none of these is on the field
      */
     fun spawnEdible(){
         if(snakeFood == null || snakeFood?.wasEaten == true){
@@ -193,7 +257,7 @@ class SnakeGameLogic : LogicCompositor{
         if(System.currentTimeMillis() >= SnakeDefaultParams.buffSpawnIntervall+lastBuffSpawn){
             val buff:EdibleEntity = EdibleEntity(getFreePos())
             val rand:Int = (0..3).shuffled().last()
-            when(rand){
+            when(rand){//random buff
                 0->buff.buffs.add(SnakeBuffs.speedupM)
                 1->buff.buffs.add(SnakeBuffs.speedupL)
                 2->buff.buffs.add(SnakeBuffs.speeddownM)
@@ -216,7 +280,7 @@ class SnakeGameLogic : LogicCompositor{
             }
         }
         for(e:Entity in field.entities){
-            if(e is ASCIISupport){
+            if(e is ASCIISupport){//TODO: possible since the game support ASCII but ugly
                 freePos.minus(e.occupies())
             }
         }

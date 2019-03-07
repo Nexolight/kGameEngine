@@ -5,15 +5,17 @@ import abstracted.entity.MovingEntity
 import abstracted.ui.`if`.ASCIISupport
 import games.snake.SnakeDefaultParams
 import models.*
+import physics.CollisionHelpers
 import physics.`if`.OrthogonCollider
 import physics.`if`.PositionalCollider
+import physics.`if`.RigidBody
 import java.util.*
 
 /**
  * Represents a player controllable snake
  * TODO: add 3d support
  */
-class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider {
+class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider,RigidBody {
 
     /**
      * Body representation of the snake
@@ -122,6 +124,24 @@ class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider {
          * We only check the head.
          */
         return Arrays.asList(body.get(0).pos)
+    }
+
+    override fun intersectsRigidBody(pos: List<Position>): Boolean {
+        val body:ArrayList<AdvancedQube> = body
+        body.removeAt(0)
+        return CollisionHelpers.intersectsPosAQ(pos,body)
+    }
+
+    override fun intersectsRigidBody(pos: Position): Boolean {
+        val body:ArrayList<AdvancedQube> = body
+        body.removeAt(0)
+        return CollisionHelpers.intersectsPosAQ(pos,body)
+    }
+
+    override fun intersectsRigidBody(qQube: AdvancedQube): Boolean {
+        //TODO: replace the positional collider when this works.
+        return false
+        //return CollisionHelpers.intersectAQAQ(qQube,occupies)
     }
 
     /*

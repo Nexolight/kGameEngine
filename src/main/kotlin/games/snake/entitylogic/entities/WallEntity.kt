@@ -29,12 +29,7 @@ class WallEntity: StaticEntity, ASCIISupport, RigidBody {
 
 
     override fun intersectsRigidBody(pos: List<Position>): Boolean {
-        for(p in pos){
-            if(intersectsRigidBody(p)){
-                return true
-            }
-        }
-        return false
+        return CollisionHelpers.intersectsPosAQ(pos,Arrays.asList(occupies[0]))
     }
 
     override fun intersectsRigidBody(pos: Position): Boolean {

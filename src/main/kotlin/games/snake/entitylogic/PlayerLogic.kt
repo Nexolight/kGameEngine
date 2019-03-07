@@ -11,6 +11,8 @@ import games.snake.entitylogic.entities.EdibleEntity
 import games.snake.entitylogic.entities.SnakeEntity
 import games.snake.entitylogic.entities.WallEntity
 import models.*
+import physics.CollisionHelpers
+import physics.`if`.RigidBody
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -19,8 +21,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Applies user inputs to the SnakeEntity
  */
 class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
-
     var kill:Boolean = false
+    var death:Boolean = false
     var moveTo:Char = SnakeDefaultParams.ctrlLEFT
     var teleport = false
     var commitedMove = ' '
@@ -37,7 +39,11 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
         //snake.setCollisionHandler(this)
 
         while(!kill){
-            if(super.actionRequestPending()){
+            if(super.actionRequestPending() && death){
+                super.actionRequestDone()
+                Thread.sleep(1)
+            }
+            if(super.actionRequestPending()){//process the last Action request
                 processNotifications()
                 if(initialFeed > 0){
                     snake.feed()
@@ -149,6 +155,11 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                 Thread.sleep(1)
             }
         }
+
+        //clear AR before exit
+        if(super.actionRequestPending()){
+            super.actionRequestDone()
+        }
     }
 
     fun processNotifications(){
@@ -194,6 +205,10 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                 }else if(n.collision.collidingDst is EdibleEntity){
                     val edible:EdibleEntity = n.collision.collidingDst
                     applyEdible(edible)
+                }else if(n.collision.collidingDst is SnakeEntity){
+                    death=true
+                    ah.notify(Notification(this,NotificationType.GAMESIGNAL, NotifyPair(SnakeGameSignals.playerDeath, 0)))
+                    ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Player dead"))
                 }
 
                 return
@@ -238,6 +253,8 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
             field.entities.remove(edible)
         }
     }
+
+
 
     override fun onNotify(n: Notification) {
         notifyQueue.add(n) //use the player logic thread later for processing

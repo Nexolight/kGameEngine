@@ -113,7 +113,7 @@ class SnakeGameLogic : LogicCompositor{
          * GameOver sequcence
          */
         if(gameOverTime != 0L){
-            if(gameOverCheck){
+            if(gameOverCheck){//action right after the player died - once
                 gameOverCheck=false
                 gameOver.updateText(
                         "${SnakeDefaultParams.gameOverMsg}${SnakeDefaultParams.gameOverTimer}",
@@ -127,9 +127,9 @@ class SnakeGameLogic : LogicCompositor{
                 super.addActionRequestDelay(1000)//override
             }
             val tDelta:Long = System.currentTimeMillis() - gameOverTime
-            if(tDelta >= 5000){
+            if(tDelta >= SnakeDefaultParams.gameOverTimer*1000){
                 field.entities.remove(gameOver)
-                gameOverTime=0L
+                gameOverTime=0L//double usage for timer end game over sequence
             }else{
                 gameOver.updateText(
                         "${SnakeDefaultParams.gameOverMsg}${SnakeDefaultParams.gameOverTimer - (tDelta / 1000).toInt()}",

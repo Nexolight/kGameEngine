@@ -1,5 +1,8 @@
 package games.snake
 
+import java.nio.file.Path
+import java.nio.file.Paths
+
 class SnakeDefaultParams {
     companion object {
         val mapwidth:Int = 50
@@ -18,6 +21,11 @@ class SnakeDefaultParams {
         val gameOverMsg:String = "You bit yourself\n\nGAME OVER\n\nExit in: "
 
         /**
+         * The path where the highscore is persisted
+         */
+        val highScorePath:Path = Paths.get(System.getProperty("user.home").plus("/.local/share/ksnake/highscore.json"))
+
+        /**
          * delay in ms before the next logic tick
          * lower values increase the game speed
          * @Deprecated
@@ -30,10 +38,10 @@ class SnakeDefaultParams {
         val buffSpawnIntervall:Long = 20000
 
         /**
-         * By how much the player controlled snake
+         * By how much the playerLogic controlled snake
          * is feed at the beginning
          */
-        val initialFeed:Int = 6
+        val initialFeed:Int = 10
 
         /**
          * Base increase in points per food piece

@@ -1,7 +1,9 @@
+import abstracted.CompositorType
 import abstracted.LogicCompositor
 import abstracted.ui.AsciiCompositor
 import abstracted.UICompositor
 import abstracted.entity.presets.TextEntity
+import abstracted.entity.presets.TextPairEntity
 import abstracted.ui.DummyCompositor
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.util.Pool
@@ -18,7 +20,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 /**
  * Class that handles the game sequence
  */
-class Engine : NotifyThread(){
+class Engine(val compositorType:CompositorType) : NotifyThread(){
     private val self:Engine = this
     private val log = KotlinLogging.logger(this::class.java.name)
 
@@ -38,24 +40,37 @@ class Engine : NotifyThread(){
             kryo.register(Size::class.java)
             kryo.register(Field::class.java)
             kryo.register(TextEntity::class.java)
+            kryo.register(TextPairEntity::class.java)
             kryo.register(AdvancedQube::class.java)
             return kryo
         }
     }
 
 
-    private val ah: ActionHandler = ActionHandler()
-    private val uic:UICompositor = AsciiCompositor(ah,kryoPool)//DummyCompositor(ah,kryoPool)
-    private val lc:LogicCompositor = SnakeGameLogic(ah,kryoPool)
 
     /**
      * Start the game
      */
     override fun run(){
+
+        val ah:ActionHandler = ActionHandler()
+
+        var uic:UICompositor? = null
+        if(compositorType == CompositorType.dummy){
+            uic = DummyCompositor(ah,kryoPool)
+        }else{
+            uic = AsciiCompositor(ah,kryoPool)
+        }
+
+
+        val lc:LogicCompositor = SnakeGameLogic(ah,kryoPool)
+
+
+
         log.info { "Engine started!" }
         ah.start()
         //uic(n) : lc(0-1)
-        uic.start()
+        uic?.start()
         lc.start()
 
         Signal.handle(Signal("INT"), object : SignalHandler {

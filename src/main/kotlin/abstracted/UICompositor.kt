@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
 enum class CompositorType{
-    ascii,web,qt
+    ascii,web,qt,dummy
 }
 
 /**

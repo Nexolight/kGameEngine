@@ -4,13 +4,12 @@ import abstracted.Entity
 import abstracted.LogicCompositor
 import flow.ActionHandler
 import abstracted.entity.presets.Align
-import abstracted.entity.presets.BGEntity
 import abstracted.entity.presets.TextEntity
 import abstracted.entity.presets.TextPairEntity
 import abstracted.ui.`if`.ASCIISupport
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.util.Pool
-import com.sun.org.apache.xpath.internal.operations.Bool
+import games.snake.entitylogic.GameOverLogic
 import games.snake.entitylogic.PlayerLogic
 import games.snake.entitylogic.entities.EdibleEntity
 import games.snake.entitylogic.entities.SnakeEntity
@@ -30,7 +29,8 @@ class SnakeGameLogic : LogicCompositor{
     val gameOver: TextEntity = TextEntity(Position(2, 10, 0))
     override var field: Field = Field(SnakeDefaultParams.mapwidth,SnakeDefaultParams.mapheight)
     private val notifyQueue: ConcurrentLinkedQueue<Notification> = ConcurrentLinkedQueue<Notification>()
-    var player:PlayerLogic? = null
+    var playerLogic:PlayerLogic? = null
+    var gameOverLogic:GameOverLogic? = null
     var snakeFood:EdibleEntity? = null
     var startTime:Long = System.currentTimeMillis()
     var dispValues: TextPairEntity = TextPairEntity(
@@ -113,7 +113,7 @@ class SnakeGameLogic : LogicCompositor{
          * GameOver sequcence
          */
         if(gameOverTime != 0L){
-            if(gameOverCheck){//action right after the player died - once
+            if(gameOverCheck){//action right after the playerLogic died - once
                 gameOverCheck=false
                 gameOver.updateText(
                         "${SnakeDefaultParams.gameOverMsg}${SnakeDefaultParams.gameOverTimer}",
@@ -121,14 +121,13 @@ class SnakeGameLogic : LogicCompositor{
                         Align.CENTER)
                 field.entities.add(gameOver)
                 despawnEdibles()
-                player?.kill=true
-                field.entities.remove(player?.snake)
-                player = null
+                playerLogic?.kill=true
                 super.addActionRequestDelay(1000)//override
             }
             val tDelta:Long = System.currentTimeMillis() - gameOverTime
             if(tDelta >= SnakeDefaultParams.gameOverTimer*1000){
                 field.entities.remove(gameOver)
+                doGameOver()
                 gameOverTime=0L//double usage for timer end game over sequence
             }else{
                 gameOver.updateText(
@@ -140,9 +139,9 @@ class SnakeGameLogic : LogicCompositor{
         }
 
         /**
-        * Playtime update. only do it as long as the player is active
+        * Playtime update. only do it as long as the playerLogic is active
          */
-        if(player != null && now - startTime > 1000){
+        if(playerLogic != null && playerLogic?.isAlive == true && now - startTime > 1000){
             playtime.value = ((now-startTime)/1000).toInt()
             dispValuesUpdated=true
             dispValues.setPair(playtime.row,playtime.name,playtime.value.toString(),false)
@@ -151,9 +150,13 @@ class SnakeGameLogic : LogicCompositor{
         /**
          * Game related async/sub functions
          */
-        if(player != null){
-            player?.actionRequest()//ASYNC
+        if(playerLogic != null && playerLogic?.isAlive == true){
+            playerLogic?.actionRequest()//ASYNC
             spawnEdible()//SYNC
+        }
+
+        if(gameOverLogic != null && gameOverLogic?.isAlive == true){
+            gameOverLogic?.actionRequest()//ASYNC
         }
 
         /**
@@ -211,7 +214,10 @@ class SnakeGameLogic : LogicCompositor{
          * at this point updates need to be finished
          * otherwise it will mess up the serialization
          */
-        while(player != null && player?.actionRequestPending() == true){
+        while(
+                (playerLogic != null && playerLogic?.isAlive == true && playerLogic?.actionRequestPending() == true) ||
+                (gameOverLogic != null && gameOverLogic?.isAlive == true && gameOverLogic?.actionRequestPending() == true)
+                ){
             Thread.sleep(1)
         }
 
@@ -297,9 +303,22 @@ class SnakeGameLogic : LogicCompositor{
                 Rotation(0.0,0.0,0.0)
         )
         val newPlayer:PlayerLogic = PlayerLogic(field, newSnake, ah)
-        field.entities.add(newPlayer.snake)
         newPlayer.start()
-        player = newPlayer
+        playerLogic = newPlayer
+    }
+
+    fun doGameOver(){
+        val highscore:TextPairEntity = TextPairEntity(
+                Position(0,0,0),
+                Rotation(0.0,0.0,0.0),
+                SnakeDefaultParams.mapwidth-2,0,null
+        )
+        val gameOver:GameOverLogic = GameOverLogic(
+                field,highscore,
+                ah,
+                HighScoreVals("",playerPoints.value.toLong(),playtime.value.toLong()))
+        gameOver.start()
+        gameOverLogic = gameOver
     }
 
     /**

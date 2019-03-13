@@ -12,8 +12,9 @@ fun main(args:Array<String>) = mainBody{
             "ascii" -> compositor = CompositorType.ascii
             "web" -> compositor = CompositorType.web
             "qt" -> compositor = CompositorType.qt
+            "dummy" -> compositor = CompositorType.dummy
         }
     }
-    val engine:Engine = Engine()
+    val engine:Engine = Engine(compositor)
     engine.start()
 }

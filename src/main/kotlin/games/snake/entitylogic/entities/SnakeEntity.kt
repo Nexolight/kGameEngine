@@ -12,7 +12,7 @@ import physics.`if`.RigidBody
 import java.util.*
 
 /**
- * Represents a player controllable snake
+ * Represents a playerLogic controllable snake
  * TODO: add 3d support
  */
 class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider,RigidBody {

@@ -4,6 +4,7 @@ import abstracted.UICompositor
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.util.Pool
 import flow.ActionHandler
+import io.KbdConsole
 import models.Field
 import models.HighScore
 import mu.KLogger
@@ -15,6 +16,8 @@ class DummyCompositor(ah: ActionHandler, kryoPool: Pool<Kryo>) : UICompositor(ah
     override fun onRun() {
         log = KotlinLogging.logger(this::class.java.name)
         log.info { "DummyCompositor started!" }
+        val kbdt: KbdConsole = KbdConsole(ah)
+        kbdt.start()
     }
 
     override fun onSIGINT() {

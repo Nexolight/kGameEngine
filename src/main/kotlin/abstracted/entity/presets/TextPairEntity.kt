@@ -114,16 +114,19 @@ class TextPairEntity : StaticEntity, ASCIISupport {
             }
         }
 
-        var indexRow:Int = 0
-        for (pairRow in 0 .. TreeSet(pairs.keys).last()) {
-            var pair:TextPair? = pairs.get(pairRow)
-            if(pair == null){
-                pair = TextPair("","")
+        if(pairs.size > 0){
+            var indexRow:Int = 0
+            for (pairRow in 0 .. TreeSet(pairs.keys).last()) {
+                var pair:TextPair? = pairs.get(pairRow)
+                if(pair == null){
+                    pair = TextPair("","")
+                }
+                updatePairsSub(pair,offcol,offrow,textRow+pairRow)
+                indexRow++
             }
-            updatePairsSub(pair,offcol,offrow,textRow+pairRow)
-            indexRow++
+            textRow+=indexRow
         }
-        textRow+=indexRow
+
         if(border != null){
             for(padding in 0 until borderPadding){
                 updatePairsSub(TextPair("",""),offcol,offrow,textRow)

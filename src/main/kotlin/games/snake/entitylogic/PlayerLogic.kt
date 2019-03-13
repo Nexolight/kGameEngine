@@ -17,7 +17,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
- * The player logic
+ * The playerLogic logic
  * Applies user inputs to the SnakeEntity
  */
 class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
@@ -36,7 +36,8 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
         ah.subscribeNotification(Notification(this,NotificationType.COLLISION))
         ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Player Spawned!"))
 
-        //snake.setCollisionHandler(this)
+        //Add our snake
+        field.entities.add(snake)
 
         while(!kill){
             if(super.actionRequestPending() && death){
@@ -156,6 +157,9 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
             }
         }
 
+        //Remove the snake before we exit
+        field.entities.remove(snake)
+
         //clear AR before exit
         if(super.actionRequestPending()){
             super.actionRequestDone()
@@ -171,7 +175,7 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
 
                 //Ignore same key twice
                 if(commitedMove == inp){
-                    return
+                    continue
                 }
 
                 //movement filter
@@ -181,20 +185,20 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                                 SnakeDefaultParams.ctrlBWD,
                                 SnakeDefaultParams.ctrlRIGHT)
                 ){
-                    return
+                    continue
                 }
 
-                //disallow player to move into himself
+                //disallow playerLogic to move into himself
                 if(
                         (inp == SnakeDefaultParams.ctrlFWD && commitedMove == SnakeDefaultParams.ctrlBWD) ||
                         (inp == SnakeDefaultParams.ctrlLEFT && commitedMove == SnakeDefaultParams.ctrlRIGHT) ||
                         (inp == SnakeDefaultParams.ctrlBWD && commitedMove == SnakeDefaultParams.ctrlFWD) ||
                         (inp == SnakeDefaultParams.ctrlRIGHT && commitedMove == SnakeDefaultParams.ctrlLEFT)
                 ){
-                    return
+                    continue
                 }
                 moveTo = inp
-                return
+                continue
             }
 
             if(n.type == NotificationType.COLLISION && n.collision != null && n.collision.collidingSrc.equals(snake)){
@@ -211,7 +215,7 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                     ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Player dead"))
                 }
 
-                return
+                continue
             }
 
             //Kill on termination
@@ -257,6 +261,6 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
 
 
     override fun onNotify(n: Notification) {
-        notifyQueue.add(n) //use the player logic thread later for processing
+        notifyQueue.add(n) //use the playerLogic logic thread later for processing
     }
 }

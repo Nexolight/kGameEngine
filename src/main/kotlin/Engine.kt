@@ -16,14 +16,16 @@ import sun.misc.Signal
 import sun.misc.SignalHandler
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Class that handles the game sequence
  */
 class Engine(val compositorType:CompositorType) : NotifyThread(){
     private val self:Engine = this
+    private var kill:Boolean = false
     private val log = KotlinLogging.logger(this::class.java.name)
-
+    private var lastThreadLog:Long = System.currentTimeMillis()
 
     var kryoPool:Pool<Kryo> = object : Pool<Kryo>(true, false, 8) {
         override fun create(): Kryo {
@@ -76,18 +78,30 @@ class Engine(val compositorType:CompositorType) : NotifyThread(){
         Signal.handle(Signal("INT"), object : SignalHandler {
             override fun handle(sig: Signal) {
                 ah.notify(Notification(self,NotificationType.SIGNAL,2))
-                log.info { "Awaiting termination..." }
-                while(ah.isAlive || uic.isAlive || lc.isAlive){
-                    Thread.sleep(16)
-                }
-                log.info { "All threads terminated gracefully - Quit" }
-                System.exit(0)
+                log.info { "User sent SIGNAL 2 - Awaiting termination..." }
+                handleTermination(ah,uic,lc)
             }
         })
+
+        log.info { "Implementation sent SIGNAL 2 - Awaiting termination..." }
+        handleTermination(ah,uic,lc)
     }
 
 
+    /**
+     * Wait until the relevant threads have shut down, then exit the engine
+     */
+    fun handleTermination(ah:ActionHandler,uic:UICompositor,lc:LogicCompositor){
+        while(ah.isAlive || uic.isAlive || lc.isAlive){
+            Thread.sleep(16)
+        }
+        log.info { "All threads terminated gracefully - Quit" }
+        System.exit(0)
+    }
+
     override fun onNotify(n: Notification) {
-        //pass
+        if(n.type == NotificationType.SIGNAL && n.n == 2){
+            kill = true
+        }
     }
 }

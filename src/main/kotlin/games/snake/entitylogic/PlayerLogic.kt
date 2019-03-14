@@ -166,6 +166,9 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
         }
     }
 
+    /**
+     * Proecess the received notifications
+     */
     fun processNotifications(){
         while(notifyQueue.size>0){
             val n:Notification = notifyQueue.poll()
@@ -217,13 +220,6 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
 
                 continue
             }
-
-            //Kill on termination
-            if(n.type == NotificationType.SIGNAL && n.n == 2){
-                ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Killing PlayerLogic!"))
-                kill = true
-                return
-            }
         }
     }
 
@@ -258,9 +254,13 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
         }
     }
 
-
-
     override fun onNotify(n: Notification) {
+        //Kill on termination
+        if(n.type == NotificationType.SIGNAL && n.n == 2){
+            ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Killing PlayerLogic!"))
+            kill = true
+            return
+        }
         notifyQueue.add(n) //use the playerLogic logic thread later for processing
     }
 }

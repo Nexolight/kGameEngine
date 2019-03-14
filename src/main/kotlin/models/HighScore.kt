@@ -20,10 +20,13 @@ class HighScore(){
         fun load(path: Path):HighScore{
             if(Files.notExists(path)){
                 return HighScore()
+            }else if(Files.readAllBytes(path).size == 0){
+                return HighScore()
             }
             val gson:Gson = GsonBuilder().create()
             val infile = FileReader(path.toString())
             val highscore:HighScore = gson.fromJson(infile,HighScore::class.java)
+            infile.close()
             return highscore
         }
 
@@ -37,32 +40,50 @@ class HighScore(){
             val gson:Gson = GsonBuilder().create()
             val outfile = FileWriter(path.toString())
             gson.toJson(highscore,HighScore::class.java,outfile)
+            outfile.flush()
+            outfile.close()
         }
     }
 
     val entries:ArrayList<HighScoreVals> = ArrayList<HighScoreVals>()
 
 
+    /**
+     * Inserts a new entry into the highscore,
+     * replaces the entry if one with that name
+     * already exists
+     */
     fun insert(newEntry:HighScoreVals){
-        if(entries.contains(newEntry)){
-
+        var index:Int = -1
+        for(e:IndexedValue<HighScoreVals> in entries.withIndex()){
+            if(e.value.name==newEntry.name){
+                index=e.index
+                break
+            }
+        }
+        if(index == -1){
+            entries.add(newEntry)
+        }else{
+            entries[index] = newEntry
         }
     }
 
     /**
-     * Sort the list by score
+     * Sort the list by score. Higher values first
      */
     fun sort(){
         Collections.sort(entries, { o1, o2 -> o1.score.compareTo(o2.score) })
+        entries.reverse()
     }
 
     /**
      * Removes entries and only leaves the specified amount on top
      */
     fun limit(max:Int){
-        for(i in max .. entries.size){
-            entries.removeAt(i)
+        if(entries.size<=max){
+            return
         }
+        entries.removeAll(entries.subList(max,entries.size))
     }
 
 }

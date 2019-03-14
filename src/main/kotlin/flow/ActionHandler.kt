@@ -32,19 +32,24 @@ class ActionHandler : NotifyThread(){
         subscribeNotification(Notification(this,NotificationType.SIGNAL))
 
         while(!kill){
-            notifyLock.write {
-                for(np in pending){
-                    for(ntf in notifier){
-                        if(np.type == ntf.type){
-                            ntf.thread.onNotify(np)
-                        }
-                    }
-                }
-                pending.clear()
-            }
+            handleNotifications()
             Thread.sleep(1)
         }
+        handleNotifications()
         log.info { "ActionHandler stopped gracefully!" }
+    }
+
+    fun handleNotifications(){
+        notifyLock.write {
+            for(np in pending){
+                for(ntf in notifier){
+                    if(np.type == ntf.type){
+                        ntf.thread.onNotify(np)
+                    }
+                }
+            }
+            pending.clear()
+        }
     }
 
     override fun onNotify(n: Notification) {

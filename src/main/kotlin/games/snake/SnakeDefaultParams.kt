@@ -11,14 +11,30 @@ class SnakeDefaultParams {
         /**
          * Welcome message and timer before start
          */
-        val welcomeTimer:Int = 5;
+        val welcomeTimer:Int = 3;
         val welcomeMsg:String = "Starting ksnake in:\n\n "
 
         /**
          * Game over message and timer before end
          */
-        val gameOverTimer:Int = 5
+        val gameOverTimer:Int = 3
         val gameOverMsg:String = "You bit yourself\n\nGAME OVER\n\nExit in: "
+
+        /**
+         * Limit the entries in the highscore
+         */
+        val highscoreLimit:Int = 10
+
+        /**
+         * The string displayed for the reached score asking to type in the name
+         */
+        val highscoreEntryMsg:String = "> [Type your name]..."
+
+        /**
+         * The default name that is used in the highscore when no name was given
+         */
+        val highscoreDefaultName:String = "Anonymous"
+
 
         /**
          * The path where the highscore is persisted

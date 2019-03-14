@@ -94,7 +94,7 @@ class SnakeGameLogic : LogicCompositor{
             if(super.actionRequestTicks < SnakeDefaultParams.welcomeTimer){
                 super.addActionRequestDelay(1000)
                 welcome.updateText(
-                        "${SnakeDefaultParams.welcomeMsg}${5-super.actionRequestTicks}",
+                        "${SnakeDefaultParams.welcomeMsg}${SnakeDefaultParams.welcomeTimer-super.actionRequestTicks}",
                         SnakeDefaultParams.mapwidth-4,
                         Align.CENTER)
             }else{
@@ -309,14 +309,16 @@ class SnakeGameLogic : LogicCompositor{
 
     fun doGameOver(){
         val highscore:TextPairEntity = TextPairEntity(
-                Position(0,0,0),
+                Position(2,2,0),
                 Rotation(0.0,0.0,0.0),
-                SnakeDefaultParams.mapwidth-2,0,null
+                SnakeDefaultParams.mapwidth-4,0,null
         )
         val gameOver:GameOverLogic = GameOverLogic(
                 field,highscore,
                 ah,
-                HighScoreVals("",playerPoints.value.toLong(),playtime.value.toLong()))
+                HighScoreVals(SnakeDefaultParams.highscoreDefaultName,
+                        playerPoints.value.toLong(),
+                        playtime.value.toLong()))
         gameOver.start()
         gameOverLogic = gameOver
     }
@@ -353,7 +355,7 @@ class SnakeGameLogic : LogicCompositor{
 
     override fun onLCNotify(n: Notification) {
         if(n.type == NotificationType.USERINPUT) {
-            igLogI("User input: ${n.chr}")
+            igLogI("User input: ${n.chr} (${n.chr.toInt()})")
             return
         }else{//outsource
             notifyQueue.add(n)

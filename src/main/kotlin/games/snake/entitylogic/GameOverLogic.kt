@@ -17,6 +17,7 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
     private var persistentHS:HighScore = HighScore()
     private var playerIndex:Int = -1
     private var entryDone:Boolean = false
+    private var playername:String = playerStats.name
 
     /**
      * The livetime of this thread is supposed to be
@@ -37,8 +38,8 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
             if(super.actionRequestPending()){//process the last Action request
                 processNotifications()
                 if(entryDone){
-                    persistHighScore()
                     //TODO: is ctrl+c appropriate here?
+                    persistHighScore()
                     ah.notify(Notification(this,NotificationType.SIGNAL,2))
                     kill=true
                 }
@@ -47,7 +48,6 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
                 Thread.sleep(1)
             }
         }
-
 
         //Remove our highscore from the field
         field.entities.remove(highscore)
@@ -66,7 +66,26 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
         if(playerIndex < 0){
             return
         }
-        persistentHS.entries[playerIndex] = HighScoreVals(playerStats.name,playerStats.score,playerStats.playtime)
+
+        //Override the same name
+        val newHS:HighScoreVals = HighScoreVals(playername,playerStats.score,playerStats.playtime)
+        val existingIndex:Int = persistentHS.entries.indexOf(newHS)
+        if(existingIndex > -1){
+            playerIndex=existingIndex
+
+            //We don't override a lower score
+            if(persistentHS.entries[playerIndex].score < playerStats.score){
+                persistentHS.entries[playerIndex] = newHS
+            }
+
+            //This is a dummy entry, we don't need it when we override an existing one
+            persistentHS.entries.removeAt(persistentHS.entries.indexOf(
+                    HighScoreVals(SnakeDefaultParams.highscoreEntryMsg,playerStats.score,playerStats.playtime)))
+        }else{
+            persistentHS.entries[playerIndex] = newHS
+        }
+
+
         HighScore.persist(SnakeDefaultParams.highScorePath,persistentHS)
     }
 
@@ -78,21 +97,16 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
      */
     fun populateHighScore():Int{
         persistentHS = HighScore.load(SnakeDefaultParams.highScorePath)
-        persistentHS.insert(HighScoreVals("bla",5000L,60L))
-        persistentHS.insert(HighScoreVals("klei",4500L,50L))
-        persistentHS.insert(HighScoreVals("oreo",6000L,120L))
-
-
-        val tmpName:String = "> [Type your name]..."
         var position:Int = -1
-        persistentHS.insert(HighScoreVals(tmpName,playerStats.score,playerStats.playtime))
+        persistentHS.entries.add(HighScoreVals(SnakeDefaultParams.highscoreEntryMsg,playerStats.score,playerStats.playtime))
         persistentHS.sort()
+        persistentHS.limit(SnakeDefaultParams.highscoreLimit)
         for(entry:IndexedValue<HighScoreVals> in persistentHS.entries.withIndex()){
             highscore.setPair(entry.index,
-                    entry.value.name,
+                    getHSNameStr(entry.index+1,entry.value.name),
                     getHSValStr(entry.value.playtime,entry.value.score),
                     false)
-            if(entry.value.name == "tmpName"){
+            if(entry.value.name == SnakeDefaultParams.highscoreEntryMsg){
                 position=entry.index
             }
         }
@@ -105,7 +119,19 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
      * Returns the value string for the displayed highscore
      */
     fun getHSValStr(playtime:Long,score:Long):String{
-        return "${playtime} s | ${score} pts"
+        var scorestr:String = "${score} pts"
+        val delta:Int = 10 - scorestr.length
+        scorestr=" ".repeat(delta).plus(scorestr)
+        return "${playtime}s | ${scorestr}"
+    }
+
+    /**
+     * Returns the name string for the displayed highscore
+     */
+    fun getHSNameStr(pos:Int, name:String):String{
+        val delta:Int = 3-pos.toString().length
+        val noStr:String = (pos).toString().plus(" ".repeat(delta))
+        return "${noStr}| ${name}"
     }
 
     /**
@@ -117,30 +143,38 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
         if(entryDone){
             return
         }
+
         if(c == 10.toChar() || c == 13.toChar()){//Return
             entryDone=true
             ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Highscore entry phase ended"))
             return
         }
 
+        //Score to low - ignore inputs
         if(playerIndex < 0){
             return
         }
 
-        var newStr:String = playerStats.name
+        //Clear the default name, The user wrote something
+        if(playername == SnakeDefaultParams.highscoreDefaultName){
+            playername=""
+        }
 
         //Backspace
-        if(c == 8.toChar() && newStr.isNotEmpty()){
-            newStr = newStr.substring(0,newStr.length-1)
+        if((c == 8.toChar() || c == 127.toChar()) && playername.isNotEmpty()){
+            playername = playername.substring(0,playername.length-1)
         }else{
-            newStr+=c
+            playername+=c
         }
-        highscore.setPair(playerIndex,newStr,
-                getHSValStr(playerStats.playtime,playerStats.playtime),
-                false)
+        highscore.setPair(playerIndex,getHSNameStr(playerIndex+1,playername),
+                getHSValStr(playerStats.playtime,playerStats.score),
+                true)
     }
 
 
+    /**
+     * Process the received notifications
+     */
     fun processNotifications(){
         while(notifyQueue.size>0){
             val n:Notification = notifyQueue.poll()
@@ -150,16 +184,16 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
                 continue
             }
 
-            //Kill on termination
-            if(n.type == NotificationType.SIGNAL && n.n == 2){
-                ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Killing GameOverLogic!"))
-                kill = true
-                return
-            }
         }
     }
 
     override fun onNotify(n: Notification) {
+        //Kill on termination
+        if(n.type == NotificationType.SIGNAL && n.n == 2){
+            ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Killing GameOverLogic!"))
+            kill = true
+            return
+        }
         notifyQueue.add(n) //use the playerLogic logic thread later for processing
     }
 }

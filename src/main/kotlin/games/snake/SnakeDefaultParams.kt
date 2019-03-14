@@ -53,9 +53,18 @@ class SnakeDefaultParams {
         /**
          * delay in ms before the next logic tick
          * lower values increase the game speed
-         * @Deprecated
          */
         val tickSpeed:Long = 64
+
+        /**
+         * This value sets the fps cap during playtime
+         */
+        val gameFPS:Int = 16
+
+        /**
+         * This value sets the fps cap while the highscore is shown
+         */
+        val highscoreFPS:Int = 16
 
         /**
          * Interval for buff spawns

@@ -87,6 +87,8 @@ class SnakeGameLogic : LogicCompositor{
          */
         if(firstAction){
             if(super.actionRequestTicks == 0.toLong()){
+                //Set framerate to tick speed
+                ah.notify(Notification(this,NotificationType.FPSCAP,SnakeDefaultParams.gameFPS))
                 super.igLogI("Loading game")
                 genMap()
                 field.entities.add(welcome)
@@ -127,6 +129,8 @@ class SnakeGameLogic : LogicCompositor{
             val tDelta:Long = System.currentTimeMillis() - gameOverTime
             if(tDelta >= SnakeDefaultParams.gameOverTimer*1000){
                 field.entities.remove(gameOver)
+                //Set framerate to tick speed
+                ah.notify(Notification(this,NotificationType.FPSCAP,SnakeDefaultParams.highscoreFPS))
                 doGameOver()
                 gameOverTime=0L//double usage for timer end game over sequence
             }else{
@@ -155,6 +159,7 @@ class SnakeGameLogic : LogicCompositor{
             spawnEdible()//SYNC
         }else if(gameOverLogic != null && gameOverLogic?.isAlive == true){
             gameOverLogic?.actionRequest()//ASYNC
+            super.addActionRequestDelay(32)//override
         }
 
         /**

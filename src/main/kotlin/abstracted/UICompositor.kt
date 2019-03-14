@@ -30,6 +30,7 @@ abstract class UICompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThre
     protected val kryoPool:Pool<Kryo> = kryoPool
     protected val rqField:Queue<Field> = ConcurrentLinkedQueue<Field>()
     protected val rqLog:Queue<CopyOnWriteArrayList<String>> = ConcurrentLinkedQueue<CopyOnWriteArrayList<String>>()
+    private var fpsCap = 16//ms
 
     private lateinit var self:UICompositor
 
@@ -43,6 +44,7 @@ abstract class UICompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThre
     override fun run() {
         log.info { "AsciiCompositor started!" }
         ah.subscribeNotification(Notification(this,NotificationType.SIGNAL))
+        ah.subscribeNotification(Notification(this,NotificationType.FPSCAP))
         ah.subscribeNotification(Notification(this,NotificationType.NEW_LOGIC_COMPOSITOR_AVAILABLE))
         ah.notify(Notification(this,NotificationType.UI_COMPOSITOR_AVAILABLE,this))
         lastDraw = System.currentTimeMillis()
@@ -60,7 +62,7 @@ abstract class UICompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThre
             }
 
             //Framecap
-            val vsyncDelta:Long = 16 - (System.currentTimeMillis() - lastDraw)
+            val vsyncDelta:Long = fpsCap - (System.currentTimeMillis() - lastDraw)
             if(vsyncDelta > 0){
                 Thread.sleep(vsyncDelta)
             }
@@ -119,6 +121,11 @@ abstract class UICompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyThre
             log.info { "New LogicCompositor noticed, sending notification" }
             //Notify the logic compositor that a consumer is available
             reNotifyUIC=true
+            return
+        }
+        if(n.type == NotificationType.FPSCAP && n.n != 0){
+            log.info { "Changing FPS cap to ${n.n}" }
+            fpsCap = n.n
             return
         }
         if(n.type == NotificationType.SIGNAL && n.n == 2){

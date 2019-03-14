@@ -310,6 +310,9 @@ class SnakeGameLogic : LogicCompositor{
         playerLogic = newPlayer
     }
 
+    /**
+     * Start the highscore overlay
+     */
     fun doGameOver(){
         val highscore:TextPairEntity = TextPairEntity(
                 Position(2,2,0),

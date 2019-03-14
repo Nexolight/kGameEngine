@@ -1,5 +1,7 @@
 package games.snake.entitylogic
 
+import abstracted.entity.presets.Align
+import abstracted.entity.presets.TextEntity
 import abstracted.entity.presets.TextPairEntity
 import abstracted.logic.EntityLogic
 import flow.ActionHandler
@@ -30,9 +32,21 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
         ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Initialize HighScore!"))
 
         //Add our highscore to the field
-
         playerIndex = populateHighScore()
         field.entities.add(highscore)
+
+        //Add some instructions below the highscore
+        val hsHint: TextEntity = TextEntity(
+                Position(
+                        (highscore.position.x/BaseUnits.ONE).toInt(),
+                        (highscore.position.y/BaseUnits.ONE).toInt()+highscore.entries()+1,
+                        (highscore.position.z/BaseUnits.ONE).toInt()
+                ), Rotation(0.0,0.0,0.0))
+        hsHint.updateText(
+                "-".repeat(highscore.columns)+"\n"+SnakeDefaultParams.highscoreHint,
+                highscore.columns,
+                Align.LEFT)
+        field.entities.add(hsHint)
 
         while(!kill){
             if(super.actionRequestPending()){//process the last Action request
@@ -49,8 +63,9 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
             }
         }
 
-        //Remove our highscore from the field
+        //Remove our highscore & Instructions from the field
         field.entities.remove(highscore)
+        field.entities.remove(hsHint)
 
         //clear AR before exit
         if(super.actionRequestPending()){

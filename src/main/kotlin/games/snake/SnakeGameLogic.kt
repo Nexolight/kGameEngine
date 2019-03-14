@@ -153,9 +153,7 @@ class SnakeGameLogic : LogicCompositor{
         if(playerLogic != null && playerLogic?.isAlive == true){
             playerLogic?.actionRequest()//ASYNC
             spawnEdible()//SYNC
-        }
-
-        if(gameOverLogic != null && gameOverLogic?.isAlive == true){
+        }else if(gameOverLogic != null && gameOverLogic?.isAlive == true){
             gameOverLogic?.actionRequest()//ASYNC
         }
 

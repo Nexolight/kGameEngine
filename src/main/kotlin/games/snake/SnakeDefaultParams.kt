@@ -35,6 +35,15 @@ class SnakeDefaultParams {
          */
         val highscoreDefaultName:String = "Anonymous"
 
+        /**
+         * String that is displayed below the highscore
+         */
+        val highscoreHint:String = "\n"+
+                "if you get \"${highscoreEntryMsg}\":\n\n" +
+                "> Type in your name\n" +
+                "> Unchanged results in \"${highscoreDefaultName}\"\n" +
+                "> Press Enter to confirm\n" +
+                "> Press Ctrl+C to escape without save"
 
         /**
          * The path where the highscore is persisted

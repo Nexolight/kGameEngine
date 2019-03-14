@@ -14,7 +14,8 @@ import kotlin.math.abs
 class TextPairEntity : StaticEntity, ASCIISupport {
 
     private var pairs:HashMap<Int,TextPair> = HashMap<Int,TextPair>()
-    private var columns:Int = 20
+    var columns:Int = 20
+        private set
     private var border:Char? = null
     private var borderPadding = 1
 
@@ -64,6 +65,13 @@ class TextPairEntity : StaticEntity, ASCIISupport {
     fun removePair(row:Int,update:Boolean = false){
         pairs.remove(row)
         if(update){updatePairs()}
+    }
+
+    /**
+     * Returns the amount of entries in this text pair entity
+     */
+    fun entries():Int{
+        return pairs.size
     }
 
     fun updatePairsSub(pair:TextPair,offcol:Int,offrow:Int,textRow:Int,tbBorder:Boolean=false){

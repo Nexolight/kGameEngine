@@ -51,13 +51,6 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                     initialFeed--
                 }
 
-                //TODO: check collision
-
-                //TODO: check & apply for food
-
-                //TODO: check & apply buffs
-
-                //TODO: Key rebinding via broadcast and menu
 
                 /**
                  * Player movement
@@ -148,9 +141,6 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                     teleport = false
                 }
 
-                //for(bpart:AdvancedQube in snake.body.iterator()){
-                //    ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,bpart.toString()))
-                //}
                 super.actionRequestDone()
             }else{
                 Thread.sleep(1)

@@ -1,12 +1,13 @@
 package games.snake.entitylogic.entities
 
-import abstracted.Entity
 import abstracted.entity.MovingEntity
 import abstracted.ui.`if`.ASCIISupport
 import games.snake.SnakeDefaultParams
-import models.*
+import models.AdvancedQube
+import models.Position
+import models.Rotation
+import models.Size
 import physics.CollisionHelpers
-import physics.`if`.OrthogonCollider
 import physics.`if`.PositionalCollider
 import physics.`if`.RigidBody
 import java.util.*
@@ -143,11 +144,6 @@ class SnakeEntity: MovingEntity,ASCIISupport,PositionalCollider,RigidBody {
         return false
         //return CollisionHelpers.intersectAQAQ(qQube,occupies)
     }
-
-    /*
-    override fun getColliderBlocks(): List<AdvancedQube> {
-        return Arrays.asList(body.get(0))
-    }*/
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

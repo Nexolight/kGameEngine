@@ -16,7 +16,6 @@ import sun.misc.Signal
 import sun.misc.SignalHandler
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Class that handles the game sequence

@@ -35,6 +35,7 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
     private val executorService:ListeningExecutorService = MoreExecutors.listeningDecorator(
             Executors.newCachedThreadPool()
     )
+    var asycnCollision:Boolean = true
 
     /**
      * The field must be deepcopied before sending
@@ -112,24 +113,31 @@ abstract class LogicCompositor(ah:ActionHandler, kryoPool: Pool<Kryo>) : NotifyT
      * Worst case would be a delayed collision that could be corrected
      * after the collision happened.
      */
-    fun asyncCollisionDetection(serializedField: ByteArray){
-
-        executorService.submit(Callable{
+    private fun asyncCollisionDetection(serializedField: ByteArray){
+        if(asycnCollision){
+            executorService.submit(Callable{
+                val kryo:Kryo = kryoPool.obtain()
+                val kryoIn: Input = Input(ByteArrayInputStream(serializedField))
+                val fieldSnapshot:Field = kryo.readObject(kryoIn,Field::class.java)
+                kryoIn.close()
+                kryoPool.free(kryo)
+                syncCollisionDetection(fieldSnapshot)
+            })
+        }else{
             val kryo:Kryo = kryoPool.obtain()
             val kryoIn: Input = Input(ByteArrayInputStream(serializedField))
             val fieldSnapshot:Field = kryo.readObject(kryoIn,Field::class.java)
             kryoIn.close()
             kryoPool.free(kryo)
             syncCollisionDetection(fieldSnapshot)
-        })
+        }
     }
 
     /**
      * Synchron collision detection
-     * TODO: allow game implementation to choose this over async
      * TODO: Use some proper math or a physic library.
      */
-    fun syncCollisionDetection(fieldSnapshot:Field){
+    private fun syncCollisionDetection(fieldSnapshot:Field){
         for(entity:Entity in fieldSnapshot.entities){
 
             /**

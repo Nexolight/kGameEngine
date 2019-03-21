@@ -24,51 +24,50 @@ import kotlin.math.roundToInt
 
 class SnakeGameLogic : LogicCompositor{
 
-    var firstAction:Boolean = true
-    val welcome: TextEntity = TextEntity(Position(2, 10, 0))
-    val gameOver: TextEntity = TextEntity(Position(2, 10, 0))
+    private var firstAction:Boolean = true
+    private val welcome: TextEntity = TextEntity(Position(2, 10, 0))
+    private val gameOver: TextEntity = TextEntity(Position(2, 10, 0))
     override var field: Field = Field(SnakeDefaultParams.mapwidth,SnakeDefaultParams.mapheight)
     private val notifyQueue: ConcurrentLinkedQueue<Notification> = ConcurrentLinkedQueue<Notification>()
-    var playerLogic:PlayerLogic? = null
-    var gameOverLogic:GameOverLogic? = null
-    var snakeFood:EdibleEntity? = null
-    var startTime:Long = System.currentTimeMillis()
-    var dispValues: TextPairEntity = TextPairEntity(
+    private var playerLogic:PlayerLogic? = null
+    private var gameOverLogic:GameOverLogic? = null
+    private var snakeFood:EdibleEntity? = null
+    private var startTime:Long = System.currentTimeMillis()
+    private var dispValues: TextPairEntity = TextPairEntity(
             Position(SnakeDefaultParams.mapwidth+1,0,0),
             Rotation(0.0,0.0,0.0),
             30,1,'+'
     )
-    var tickSpeed:Double = SnakeDefaultParams.tickSpeed.toDouble()
-    var gameOverCheck:Boolean = false
-    var gameOverTime:Long = 0L
+    private var tickSpeed:Double = SnakeDefaultParams.tickSpeed.toDouble()
+    private var gameOverCheck:Boolean = false
+    private var gameOverTime:Long = 0L
 
     /**
      * Updated and displayed game values
      */
-    val playtime:RuntimeDispValI = RuntimeDispValI(
+    private val playtime:RuntimeDispValI = RuntimeDispValI(
             0, "Playtime (s)", 0
     )
-    var playerMultiplier: RuntimeDispValD = RuntimeDispValD(
+    private var playerMultiplier: RuntimeDispValD = RuntimeDispValD(
             1,"Speed multiplier:", 1.0
     )
-    val playerFood:RuntimeDispValI = RuntimeDispValI(
+    private val playerFood:RuntimeDispValI = RuntimeDispValI(
             2,"Food eaten: ",0
     )
-    val playerPoints:RuntimeDispValI = RuntimeDispValI(
+    private val playerPoints:RuntimeDispValI = RuntimeDispValI(
             3,"Score:", 0
     )
-    val playerState:RuntimeDispValS = RuntimeDispValS(
+    private val playerState:RuntimeDispValS = RuntimeDispValS(
             4,"Snake is:", "ALIVE"
     )
 
 
-    var lastBuffSpawn:Long = System.currentTimeMillis()
+    private var lastBuffSpawn:Long = System.currentTimeMillis()
 
     constructor(ah:ActionHandler,kryoPool: Pool<Kryo>):super(ah,kryoPool){
         ah.subscribeNotification(Notification(this,NotificationType.USERINPUT))
         ah.subscribeNotification(Notification(this,NotificationType.COLLISION))
         ah.subscribeNotification(Notification(this,NotificationType.GAMESIGNAL))
-
     }
 
     override fun requestAction() {
@@ -228,7 +227,7 @@ class SnakeGameLogic : LogicCompositor{
     /**
      * Initially add the display value pairs
      */
-    fun initDispValues(){
+    private fun initDispValues(){
         field.entities.add(dispValues)
         dispValues.setPair(playerPoints.row,playerPoints.name,playerPoints.value.toString(),false)
         dispValues.setPair(playerFood.row,playerFood.name,playerFood.value.toString(),false)
@@ -242,7 +241,7 @@ class SnakeGameLogic : LogicCompositor{
     /**
      * Removes all edibles from the game field
      */
-    fun despawnEdibles(){
+    private fun despawnEdibles(){
         val edibles:ArrayList<EdibleEntity> = ArrayList<EdibleEntity>()
         for(e:Entity in field.entities){
             if(e is EdibleEntity){
@@ -255,7 +254,7 @@ class SnakeGameLogic : LogicCompositor{
     /**
      * Will spawn food and buffs
      */
-    fun spawnEdible(){
+    private fun spawnEdible(){
         if(snakeFood == null || snakeFood?.wasEaten == true){
             val food:EdibleEntity = EdibleEntity(getFreePos())
             food.buffs.add(SnakeBuffs.food)
@@ -280,7 +279,7 @@ class SnakeGameLogic : LogicCompositor{
      * Returns a position that is not visually blocked.
      * TODO: this is 2d only. should be 3d
      */
-    fun getFreePos():Position{
+    private fun getFreePos():Position{
         val freePos:ArrayList<Position>  = ArrayList<Position>()
         for(x in 1..(SnakeDefaultParams.mapwidth-2)){
             for(y in 1..(SnakeDefaultParams.mapheight-2)){
@@ -299,7 +298,7 @@ class SnakeGameLogic : LogicCompositor{
     /**
      * Snake generation
      */
-    fun genSnake(){
+    private fun genSnake(){
         val newSnake = SnakeEntity(
                 Position(SnakeDefaultParams.mapwidth/2,SnakeDefaultParams.mapheight/2,0),
                 Rotation(0.0,0.0,0.0)
@@ -312,7 +311,7 @@ class SnakeGameLogic : LogicCompositor{
     /**
      * Start the highscore overlay
      */
-    fun doGameOver(){
+    private fun doGameOver(){
         val highscore:TextPairEntity = TextPairEntity(
                 Position(2,2,0),
                 Rotation(0.0,0.0,0.0),
@@ -331,7 +330,7 @@ class SnakeGameLogic : LogicCompositor{
     /**
      * Map generation
      */
-    fun genMap(){
+    private fun genMap(){
         field.entities.add(
             WallEntity(
                     Position(0,0,0),

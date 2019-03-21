@@ -22,11 +22,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler): EntityLogic() {
     var kill:Boolean = false
-    var death:Boolean = false
-    var moveTo:Char = SnakeDefaultParams.ctrlLEFT
-    var teleport = false
-    var commitedMove = ' '
-    var initialFeed = SnakeDefaultParams.initialFeed
+    private var death:Boolean = false
+    private var moveTo:Char = SnakeDefaultParams.ctrlLEFT
+    private var teleport = false
+    private var commitedMove = ' '
+    private var initialFeed = SnakeDefaultParams.initialFeed
     private val notifyQueue: ConcurrentLinkedQueue<Notification> = ConcurrentLinkedQueue<Notification>()
 
 
@@ -49,6 +49,50 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                 if(initialFeed > 0){
                     snake.feed()
                     initialFeed--
+                }
+
+                /**
+                 * Teleporting from wall to wall
+                 */
+                if(teleport){
+                    if((snake.position.x/BaseUnits.ONE).toInt() >= SnakeDefaultParams.mapwidth-1 &&
+                            commitedMove == SnakeDefaultParams.ctrlRIGHT){
+                        snake.transform(
+                                Position(
+                                        (SnakeDefaultParams.mapwidth*-1)+2,
+                                        0,
+                                        0
+                                )
+                        )
+                    }else if((snake.position.x/BaseUnits.ONE).toInt() <= 2 &&
+                            commitedMove == SnakeDefaultParams.ctrlLEFT){
+                        snake.transform(
+                                Position(
+                                        SnakeDefaultParams.mapwidth-2,
+                                        0,
+                                        0
+                                )
+                        )
+                    }else if((snake.position.y/BaseUnits.ONE).toInt() >= SnakeDefaultParams.mapheight-1 &&
+                            commitedMove == SnakeDefaultParams.ctrlBWD){
+                        snake.transform(
+                                Position(
+                                        0,
+                                        (SnakeDefaultParams.mapheight*-1)+2,
+                                        0
+                                )
+                        )
+                    }else if((snake.position.y/BaseUnits.ONE).toInt() <= 1 &&
+                            commitedMove == SnakeDefaultParams.ctrlFWD){
+                        snake.transform(
+                                Position(
+                                        0,
+                                        SnakeDefaultParams.mapheight-2,
+                                        0
+                                )
+                        )
+                    }
+                    teleport = false
                 }
 
 
@@ -97,49 +141,7 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
                     }
                 }
 
-                /**
-                 * Teleporting from wall to wall
-                 */
-                if(teleport){
-                    if((snake.position.x/BaseUnits.ONE).toInt() >= SnakeDefaultParams.mapwidth &&
-                            commitedMove == SnakeDefaultParams.ctrlRIGHT){
-                        snake.transform(
-                                Position(
-                                        (snake.position.x/BaseUnits.ONE).toInt()*-1+1,
-                                        0,
-                                        0
-                                )
-                        )
-                    }else if((snake.position.x/BaseUnits.ONE).toInt() <= 1 &&
-                            commitedMove == SnakeDefaultParams.ctrlLEFT){
-                        snake.transform(
-                                Position(
-                                        SnakeDefaultParams.mapwidth-1,
-                                        0,
-                                        0
-                                )
-                        )
-                    }else if((snake.position.y/BaseUnits.ONE).toInt() >= SnakeDefaultParams.mapheight &&
-                            commitedMove == SnakeDefaultParams.ctrlBWD){
-                        snake.transform(
-                                Position(
-                                        0,
-                                        (snake.position.y/BaseUnits.ONE).toInt()*-1+1,
-                                        0
-                                )
-                        )
-                    }else if((snake.position.y/BaseUnits.ONE).toInt() <= 0 &&
-                            commitedMove == SnakeDefaultParams.ctrlFWD){
-                        snake.transform(
-                                Position(
-                                        0,
-                                        SnakeDefaultParams.mapheight-1,
-                                        0
-                                )
-                        )
-                    }
-                    teleport = false
-                }
+
 
                 super.actionRequestDone()
             }else{
@@ -159,7 +161,7 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
     /**
      * Proecess the received notifications
      */
-    fun processNotifications(){
+    private fun processNotifications(){
         while(notifyQueue.size>0){
             val n:Notification = notifyQueue.poll()
             //Store user input
@@ -196,9 +198,10 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
 
             if(n.type == NotificationType.COLLISION && n.collision != null && n.collision.collidingSrc.equals(snake)){
                 if(n.collision.collidingDst is WallEntity){
-                    teleport=true
-                    ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Player teleport"))
-                    //snake.feed()
+                    if(teleport==false){
+                        teleport=true
+                        ah.notify(Notification(this,NotificationType.INGAME_LOG_INFO,"Player teleport at ${snake.position.toString()}"))
+                    }
                 }else if(n.collision.collidingDst is EdibleEntity){
                     val edible:EdibleEntity = n.collision.collidingDst
                     applyEdible(edible)
@@ -218,7 +221,7 @@ class PlayerLogic(val field:Field, var snake:SnakeEntity, val ah:ActionHandler):
      * let's apply the buffs and remove that piece
      * from the field
      */
-    fun applyEdible(edible:EdibleEntity){
+    private fun applyEdible(edible:EdibleEntity){
         for(buff:Buff in edible.buffs){
 
             if(buff == SnakeBuffs.food){

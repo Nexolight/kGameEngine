@@ -77,7 +77,7 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
      * Write back the altered entry
      * and persist
      */
-    fun persistHighScore(){
+    private fun persistHighScore(){
         if(playerIndex < 0){
             return
         }
@@ -110,7 +110,7 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
      *
      * Returns the position within the highscore or -1
      */
-    fun populateHighScore():Int{
+    private fun populateHighScore():Int{
         persistentHS = HighScore.load(SnakeDefaultParams.highScorePath)
         var position:Int = -1
         persistentHS.entries.add(HighScoreVals(SnakeDefaultParams.highscoreEntryMsg,playerStats.score,playerStats.playtime))
@@ -133,7 +133,7 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
     /**
      * Returns the value string for the displayed highscore
      */
-    fun getHSValStr(playtime:Long,score:Long):String{
+    private fun getHSValStr(playtime:Long,score:Long):String{
         var scorestr:String = "${score} pts"
         val delta:Int = 10 - scorestr.length
         scorestr=" ".repeat(delta).plus(scorestr)
@@ -143,7 +143,7 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
     /**
      * Returns the name string for the displayed highscore
      */
-    fun getHSNameStr(pos:Int, name:String):String{
+    private fun getHSNameStr(pos:Int, name:String):String{
         val delta:Int = 3-pos.toString().length
         val noStr:String = (pos).toString().plus(" ".repeat(delta))
         return "${noStr}| ${name}"
@@ -153,7 +153,7 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
      * Process the user input
      * (writing the name on the highscore if possible)
      */
-    fun procUIP(c:Char){
+    private fun procUIP(c:Char){
 
         if(entryDone){
             return
@@ -190,7 +190,7 @@ class GameOverLogic(val field:Field, val highscore: TextPairEntity, val ah:Actio
     /**
      * Process the received notifications
      */
-    fun processNotifications(){
+    private fun processNotifications(){
         while(notifyQueue.size>0){
             val n:Notification = notifyQueue.poll()
             //Store user input

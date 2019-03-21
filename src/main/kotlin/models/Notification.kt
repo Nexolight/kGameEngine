@@ -8,7 +8,6 @@ import java.util.*
 
 
 enum class NotificationType{
-    MOVEMENT,
     INTERACTION,
     COLLISION,
     USERINPUT,

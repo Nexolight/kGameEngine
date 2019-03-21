@@ -7,7 +7,7 @@ import com.xenomachina.argparser.default
 class Args(parser:ArgParser){
     val argCompositor by parser.storing(
             "-c","--compositor",
-            help = "Use a specific compositor (ascii/web/qt)"
+            help = "Use a specific compositor (ascii/web/qt/dummy)"
     ){toString()}
             .default(CompositorType.ascii)
             .addValidator {

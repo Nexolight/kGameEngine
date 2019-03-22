@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>17</zoom_level>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>289</x>
+      <y>357</y>
+      <w>204</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>Start
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>612</x>
+      <y>493</y>
+      <w>204</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>End
+bg=red</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>918</x>
+      <y>442</y>
+      <w>170</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>WallEntity
+bg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1071</x>
+      <y>357</y>
+      <w>170</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>SnakeEntity
+bg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1360</x>
+      <y>476</y>
+      <w>204</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>PlayerLogic
+bg=pink</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>799</x>
+      <y>153</y>
+      <w>1020</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>(Engine Related Entity abstractions)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1071</x>
+      <y>663</y>
+      <w>646</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>SnakeGameLogic
+
+
+bg=pink</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>510</x>
+      <y>612</y>
+      <w>408</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>(Engine Logic Compositor)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>901</x>
+      <y>612</y>
+      <w>204</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>100.0;40.0;70.0;40.0;30.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1003</x>
+      <y>187</y>
+      <w>187</w>
+      <h>289</h>
+    </coordinates>
+    <panel_attributes>implements
+lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1173</x>
+      <y>187</y>
+      <w>187</w>
+      <h>204</h>
+    </coordinates>
+    <panel_attributes>implements
+lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1360</x>
+      <y>187</y>
+      <w>187</w>
+      <h>323</h>
+    </coordinates>
+    <panel_attributes>implements
+lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;170.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>510</x>
+      <y>850</y>
+      <w>408</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>(Engine UI Compositor)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>510</x>
+      <y>1003</y>
+      <w>408</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>(Engine Action Handler)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>374</x>
+      <y>408</y>
+      <w>51</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>204</x>
+      <y>510</y>
+      <w>289</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>(Engine Controll)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>374</x>
+      <y>544</y>
+      <w>170</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes>owned by
+
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0;80.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>374</x>
+      <y>544</y>
+      <w>170</w>
+      <h>357</h>
+    </coordinates>
+    <panel_attributes>
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;190.0;80.0;190.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>374</x>
+      <y>544</y>
+      <w>170</w>
+      <h>510</h>
+    </coordinates>
+    <panel_attributes>
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;280.0;80.0;280.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1428</x>
+      <y>272</y>
+      <w>204</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>EdibleEntity
+bg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1496</x>
+      <y>187</y>
+      <w>187</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>implements
+lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>544</x>
+      <y>884</y>
+      <w>153</w>
+      <h>153</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>850</x>
+      <y>646</y>
+      <w>221</w>
+      <h>391</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>10.0;210.0;10.0;190.0;50.0;190.0;50.0;20.0;10.0;20.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>204</x>
+      <y>34</y>
+      <w>102</w>
+      <h>187</h>
+    </coordinates>
+    <panel_attributes>User</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>255</x>
+      <y>0</y>
+      <w>357</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>190.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>510</x>
+      <y>34</y>
+      <w>136</w>
+      <h>187</h>
+    </coordinates>
+    <panel_attributes>Interface</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>391</x>
+      <y>17</y>
+      <w>221</w>
+      <h>374</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>110.0;10.0;10.0;200.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>425</x>
+      <y>697</y>
+      <w>170</w>
+      <h>102</h>
+    </coordinates>
+    <panel_attributes>(Engine 
+Ascii 
+Compositor)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>578</x>
+      <y>731</y>
+      <w>221</w>
+      <h>153</h>
+    </coordinates>
+    <panel_attributes>Implements
+lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>30.0;70.0;30.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>170</x>
+      <y>17</y>
+      <w>442</w>
+      <h>748</h>
+    </coordinates>
+    <panel_attributes>Input/Output
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</panel_attributes>
+    <additional_attributes>240.0;10.0;10.0;180.0;10.0;420.0;150.0;420.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>612</x>
+      <y>289</y>
+      <w>374</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>(Engine Template Entities)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>833</x>
+      <y>187</y>
+      <w>187</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes>implements
+lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1224</x>
+      <y>357</y>
+      <w>187</w>
+      <h>153</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>10.0;20.0;90.0;20.0;90.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>901</x>
+      <y>510</y>
+      <w>544</w>
+      <h>561</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>10.0;310.0;300.0;310.0;300.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>476</x>
+      <y>493</y>
+      <w>170</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;80.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>901</x>
+      <y>697</y>
+      <w>323</w>
+      <h>357</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>10.0;190.0;100.0;190.0;170.0;150.0;170.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1139</x>
+      <y>459</y>
+      <w>204</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>GameOverLogic
+bg=pink</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>884</x>
+      <y>323</y>
+      <w>289</w>
+      <h>272</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0;110.0;140.0;150.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>901</x>
+      <y>153</y>
+      <w>1105</w>
+      <h>748</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>540.0;10.0;570.0;10.0;570.0;420.0;10.0;420.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1445</x>
+      <y>510</y>
+      <w>170</w>
+      <h>187</h>
+    </coordinates>
+    <panel_attributes>owned by
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;90.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1241</x>
+      <y>493</y>
+      <w>170</w>
+      <h>204</h>
+    </coordinates>
+    <panel_attributes>owned by
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;100.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1581</x>
+      <y>306</y>
+      <w>170</w>
+      <h>391</h>
+    </coordinates>
+    <panel_attributes>owned by
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;210.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1071</x>
+      <y>476</y>
+      <w>170</w>
+      <h>221</h>
+    </coordinates>
+    <panel_attributes>owned by
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;110.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1105</x>
+      <y>391</y>
+      <w>170</w>
+      <h>306</h>
+    </coordinates>
+    <panel_attributes>owned by
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;160.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>850</x>
+      <y>323</y>
+      <w>255</w>
+      <h>374</h>
+    </coordinates>
+    <panel_attributes>owned by
+lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>130.0;200.0;10.0;140.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1190</x>
+      <y>68</y>
+      <w>272</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>(Engine Interfaces)
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1445</x>
+      <y>85</y>
+      <w>306</w>
+      <h>255</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>110.0;130.0;160.0;130.0;160.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1156</x>
+      <y>85</y>
+      <w>68</w>
+      <h>306</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;160.0;10.0;10.0;20.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>986</x>
+      <y>51</y>
+      <w>238</w>
+      <h>425</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>120.0;20.0;10.0;20.0;10.0;230.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1513</x>
+      <y>799</y>
+      <w>204</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>SnakeBuffs
+bg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1615</x>
+      <y>306</y>
+      <w>272</w>
+      <h>544</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>60.0;300.0;80.0;300.0;80.0;30.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1581</x>
+      <y>697</y>
+      <w>153</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1615</x>
+      <y>952</y>
+      <w>272</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>SnakeGameSignals
+bg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1411</x>
+      <y>510</y>
+      <w>238</w>
+      <h>510</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>120.0;280.0;10.0;280.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1445</x>
+      <y>697</y>
+      <w>204</w>
+      <h>289</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>100.0;150.0;10.0;150.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1581</x>
+      <y>1020</y>
+      <w>272</w>
+      <h>51</h>
+    </coordinates>
+    <panel_attributes>SnakeDefaultParams
+bg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1445</x>
+      <y>697</y>
+      <w>170</w>
+      <h>357</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>80.0;190.0;10.0;190.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1411</x>
+      <y>510</y>
+      <w>204</w>
+      <h>578</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>100.0;320.0;10.0;320.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1224</x>
+      <y>391</y>
+      <w>714</w>
+      <h>697</h>
+    </coordinates>
+    <panel_attributes>
+lt=&lt;..</panel_attributes>
+    <additional_attributes>370.0;390.0;400.0;390.0;400.0;290.0;330.0;240.0;330.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1292</x>
+      <y>391</y>
+      <w>646</w>
+      <h>697</h>
+    </coordinates>
+    <panel_attributes>depends
+lt=&lt;..</panel_attributes>
+    <additional_attributes>330.0;390.0;360.0;390.0;360.0;290.0;290.0;240.0;290.0;10.0;10.0;10.0;10.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>680</x>
+      <y>51</y>
+      <w>544</w>
+      <h>272</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>300.0;20.0;10.0;20.0;10.0;140.0</additional_attributes>
+  </element>
+</diagram>

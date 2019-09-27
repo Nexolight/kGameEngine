@@ -21,9 +21,9 @@ on that implementation. It's completely independent.
 
 * Focus on multithreading
 * 2D ASCII Compositor implemented (Nothing else yet) 
-** Keyboard events without pressing the return key
-** Reaches up to 400'000 FPS (hardware and implementation dependent)
-** Template entities for Text, Walls and Highscores/Menus
+  * Keyboard events without pressing the return key
+  * Reaches up to 400'000 FPS (hardware and implementation dependent)
+  * Template entities for Text, Walls and Highscores/Menus
 * Compositor multiplexing (Remote rendering could be added)
 * Fake vSync
 * Reprojection

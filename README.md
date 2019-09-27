@@ -8,6 +8,11 @@
 * Licence: GPLv3
 * Copyright: Lucy von Känel <snow.dream.ch@gmail.com> - 2018
 
+### Disclaimer:
+
+I put effort into this project, this however is my first program written in
+kotlin. So you might find some imperfections there.
+
 ### Content:
 
 A Game Engine written in kotlin where the engine development was driven

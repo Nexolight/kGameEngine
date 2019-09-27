@@ -3,6 +3,7 @@
 ### Overview:
 
 * **Origin: Regular school project**
+* Docs: German/pdf (sorry for that). Comments are English.
 * Language: Kotlin
 * Licence: GPLv3
 * Copyright: Lucy von Känel <snow.dream.ch@gmail.com> - 2018
